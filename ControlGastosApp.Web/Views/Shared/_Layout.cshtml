@@ -15,6 +15,10 @@
     <!-- Custom styles for this template-->
     <link href="~/css/sb-admin-2.min.css" rel="stylesheet">
     <link href="~/vendor/datatables/dataTables.bootstrap4.min.css" rel="stylesheet">
+    
+    <!-- DevExtreme CSS -->
+    <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/latest/css/dx.light.css" />
+    
     @await RenderSectionAsync("Styles", required: false)
 </head>
 
@@ -219,20 +223,29 @@
         </div>
     </div>
 
+    <!-- Core JavaScript-->
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script>
+        // Asegurar que jQuery esté disponible globalmente
+        window.jQuery = window.$ = jQuery;
+    </script>
+    
     <!-- Bootstrap core JavaScript-->
-    <script src="~/vendor/jquery/jquery.min.js"></script>
     <script src="~/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
-
+    
     <!-- Core plugin JavaScript-->
     <script src="~/vendor/jquery-easing/jquery.easing.min.js"></script>
-
+    
     <!-- Custom scripts for all pages-->
     <script src="~/js/sb-admin-2.min.js"></script>
-
+    
     <!-- Page level plugins -->
     <script src="~/vendor/datatables/jquery.dataTables.min.js"></script>
     <script src="~/vendor/datatables/dataTables.bootstrap4.min.js"></script>
+    
+    <!-- DevExtreme -->
+    <script src="https://cdn3.devexpress.com/jslib/23.2.3/js/dx.all.js"></script>
 
-    @await RenderSectionAsync("Scripts", required: false)
+    @RenderSection("Scripts", required: false)
 </body>
 </html>

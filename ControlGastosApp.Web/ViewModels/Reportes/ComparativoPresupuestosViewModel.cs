@@ -16,6 +16,7 @@ namespace ControlGastosApp.Web.ViewModels.Reportes
 
         public List<TipoGastoViewModel> TiposGasto { get; set; } = new();
         public List<ComparativoViewModel> Comparativo { get; set; } = new();
+        public List<MovimientoViewModel> Movimientos { get; set; } = new();
     }
 
     public class TipoGastoViewModel

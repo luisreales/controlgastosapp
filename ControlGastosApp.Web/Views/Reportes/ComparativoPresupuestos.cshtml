@@ -1,3 +1,5 @@
+@using Microsoft.AspNetCore.Html
+@using System.Text.Json
 @model ControlGastosApp.Web.ViewModels.Reportes.ComparativoPresupuestosViewModel
 @{
     ViewData["Title"] = "Comparativo de Presupuestos";
@@ -51,8 +53,8 @@
             <h6 class="m-0 font-weight-bold text-primary">Resultados del Comparativo</h6>
         </div>
         <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+            <div id="comparativoTableContainer">
+                <table class="table table-bordered table-striped">
                     <thead>
                         <tr>
                             <th>Tipo de Gasto</th>
@@ -68,22 +70,10 @@
                                 <td>@item.TipoGastoNombre</td>
                                 <td class="text-right">@item.PresupuestadoFormateado</td>
                                 <td class="text-right">@item.EjecutadoFormateado</td>
-                                <td class="text-right @(item.Diferencia < 0 ? "text-danger" : "text-success")">
-                                    @item.DiferenciaFormateada
-                                </td>
+                                <td class="text-right">@item.DiferenciaFormateada</td>
                             </tr>
                         }
                     </tbody>
-                    <tfoot>
-                        <tr class="font-weight-bold">
-                            <td>Total</td>
-                            <td class="text-right">@Model.Comparativo.Sum(x => x.Presupuestado).ToString("C")</td>
-                            <td class="text-right">@Model.Comparativo.Sum(x => x.Ejecutado).ToString("C")</td>
-                            <td class="text-right @(Model.Comparativo.Sum(x => x.Diferencia) < 0 ? "text-danger" : "text-success")">
-                                @Model.Comparativo.Sum(x => x.Diferencia).ToString("C")
-                            </td>
-                        </tr>
-                    </tfoot>
                 </table>
             </div>
         </div>
@@ -94,108 +84,124 @@
             <h6 class="m-0 font-weight-bold text-primary">Gráfico Comparativo</h6>
         </div>
         <div class="card-body">
-            <div class="chart-bar">
-                <canvas id="comparativoChart"></canvas>
-            </div>
+            <div id="chartComparativo" style="height: 400px;"></div>
         </div>
     </div>
 }
+else
+{
+    <div class="alert alert-info">
+        No hay datos disponibles para mostrar en el comparativo. Por favor, seleccione un rango de fechas y vuelva a intentar.
+    </div>
+}
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Detalle de Movimientos</h6>
+    </div>
+    <div class="card-body">
+        <div id="movimientosTableContainer">
+            @if (Model.Movimientos != null && Model.Movimientos.Any())
+            {
+                <table class="table table-bordered table-striped">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Tipo</th>
+                            <th>Descripción / Observación</th>
+                            <th>Fondo Monetario</th>
+                            <th>Monto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var movimiento in Model.Movimientos)
+                        {
+                            <tr class="@(movimiento.Tipo == "Depósito" ? "table-primary" : (movimiento.Tipo == "Gasto" ? "table-danger" : ""))">
+                                <td>@movimiento.Fecha.ToString("dd/MM/yyyy")</td>
+                                <td>@movimiento.Tipo</td>
+                                <td>@movimiento.Descripcion</td>
+                                <td>@movimiento.FondoNombre</td>
+                                <td class="text-right">@movimiento.MontoFormateado</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="alert alert-info">
+                    No hay movimientos para mostrar en el rango de fechas seleccionado.
+                </div>
+            }
+        </div>
+    </div>
+</div>
 
 @section Scripts {
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        $(document).ready(function () {
-            @if (Model.Comparativo.Any())
-            {
-                <text>
-                var ctx = document.getElementById('comparativoChart').getContext('2d');
-                var myBarChart = new Chart(ctx, {
-                    type: 'bar',
-                    data: {
-                        labels: @Html.Raw(Json.Serialize(Model.Comparativo.Select(x => x.TipoGastoNombre))),
-                        datasets: [{
-                            label: "Presupuestado",
-                            backgroundColor: "#4e73df",
-                            hoverBackgroundColor: "#2e59d9",
-                            borderColor: "#4e73df",
-                            data: @Html.Raw(Json.Serialize(Model.Comparativo.Select(x => x.Presupuestado))),
-                        },
-                        {
-                            label: "Ejecutado",
-                            backgroundColor: "#1cc88a",
-                            hoverBackgroundColor: "#17a673",
-                            borderColor: "#1cc88a",
-                            data: @Html.Raw(Json.Serialize(Model.Comparativo.Select(x => x.Ejecutado))),
-                        }],
-                    },
-                    options: {
-                        maintainAspectRatio: false,
-                        layout: {
-                            padding: {
-                                left: 10,
-                                right: 25,
-                                top: 25,
-                                bottom: 0
-                            }
-                        },
-                        scales: {
-                            xAxes: [{
-                                time: {
-                                    unit: 'month'
+    @if (Model.Comparativo.Any())
+    {
+        <script>
+            $(document).ready(function() {
+                var comparativoData = @Html.Raw(Json.Serialize(Model.Comparativo));
+                console.log('Datos del comparativo:', comparativoData);
+                
+                if (comparativoData && comparativoData.length > 0) {
+                    // Verificar que los datos tengan la estructura correcta
+                    var hasValidData = comparativoData.every(function(item) {
+                        console.log('Validando item:', item);
+                        var isValid = item && 
+                               item.tipoGastoNombre !== undefined && 
+                               item.presupuestado !== undefined && 
+                               item.ejecutado !== undefined;
+                        console.log('Item válido:', isValid, item);
+                        return isValid;
+                    });
+
+                    console.log('¿Todos los datos son válidos?:', hasValidData);
+
+                    if (hasValidData) {
+                        $("#chartComparativo").dxChart({
+                            dataSource: comparativoData,
+                            series: [
+                                {
+                                    argumentField: "tipoGastoNombre",
+                                    valueField: "presupuestado",
+                                    name: "Presupuestado",
+                                    type: "bar"
                                 },
-                                gridLines: {
-                                    display: false,
-                                    drawBorder: false
-                                },
-                                ticks: {
-                                    maxTicksLimit: 6
-                                },
-                                maxBarThickness: 25,
-                            }],
-                            yAxes: [{
-                                ticks: {
-                                    min: 0,
-                                    maxTicksLimit: 5,
-                                    padding: 10,
-                                    callback: function(value, index, values) {
-                                        return '$' + value.toLocaleString();
-                                    }
-                                },
-                                gridLines: {
-                                    color: "rgb(234, 236, 244)",
-                                    zeroLineColor: "rgb(234, 236, 244)",
-                                    drawBorder: false,
-                                    borderDash: [2],
-                                    zeroLineBorderDash: [2]
+                                {
+                                    argumentField: "tipoGastoNombre",
+                                    valueField: "ejecutado",
+                                    name: "Ejecutado",
+                                    type: "bar"
                                 }
-                            }],
-                        },
-                        legend: {
-                            display: true
-                        },
-                        tooltips: {
-                            titleMarginBottom: 10,
-                            titleFontColor: '#6e707e',
-                            titleFontSize: 14,
-                            backgroundColor: "rgb(255,255,255)",
-                            bodyFontColor: "#858796",
-                            borderColor: '#dddfeb',
-                            borderWidth: 1,
-                            xPadding: 15,
-                            yPadding: 15,
-                            displayColors: false,
-                            caretPadding: 10,
-                            callbacks: {
-                                label: function(tooltipItem, chart) {
-                                    var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
-                                    return datasetLabel + ': $' + tooltipItem.yLabel.toLocaleString();
+                            ],
+                            argumentAxis: {
+                                label: {
+                                    rotationAngle: 45
                                 }
+                            },
+                            valueAxis: {
+                                label: {
+                                    format: "currency"
+                                }
+                            },
+                            legend: {
+                                visible: true
+                            },
+                            title: "Comparativo de Presupuestos",
+                            tooltip: {
+                                enabled: true,
+                                format: "currency"
                             }
-                        },
+                        });
+
+                    } else {
+                        console.log('Datos inválidos:', comparativoData);
+                        $("#chartComparativo").html('<div class="alert alert-warning">Los datos no tienen el formato correcto para mostrar el gráfico. Por favor, revise la consola para más detalles.</div>');
                     }
-                });
-                </text>
-            }
-        });
-    </script>
+                }
+            });
+        </script>
+    }
 } 

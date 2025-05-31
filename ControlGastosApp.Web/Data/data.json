@@ -8,12 +8,13 @@
       { "id": 2, "nombre": "Caja Menuda", "tipo": "Caja", "saldo": 50000 }
     ],
     "presupuestos": [
-      { "id": 1, "tipoGastoId": 1, "mes": "2025-05", "monto": 200000 }
+      { "id": 1, "tipoGastoId": 1, "mes": "2024-03", "monto": 200000 },
+      { "id": 2, "tipoGastoId": 2, "mes": "2024-03", "monto": 150000 }
     ],
     "gastos": [
       {
         "id": 1,
-        "fecha": "2025-05-10",
+        "fecha": "2024-03-10",
         "fondoId": 1,
         "observaciones": "Compra mercado",
         "comercio": "Éxito",
@@ -25,7 +26,7 @@
       }
     ],
     "depositos": [
-      { "id": 1, "fecha": "2025-05-05", "fondoId": 1, "monto": 50000 }
+      { "id": 1, "fecha": "2024-03-05", "fondoId": 1, "monto": 50000 }
     ]
   }
   

@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ControlGastosApp.Web")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+a825212a5eeb0c05ae4a43703b539a2df2b10742")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+506d48f1596f10e7672ebae8973d5ee554b404d5")]
 [assembly: System.Reflection.AssemblyProductAttribute("ControlGastosApp.Web")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ControlGastosApp.Web")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

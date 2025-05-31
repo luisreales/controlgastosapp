@@ -16,15 +16,4 @@ namespace ControlGastosApp.Web.ViewModels.Reportes
 
         public List<MovimientoViewModel> Movimientos { get; set; } = new();
     }
-
-    public class MovimientoViewModel
-    {
-        public DateTime Fecha { get; set; }
-        public string FechaFormateada { get; set; } = string.Empty;
-        public string Tipo { get; set; } = string.Empty;
-        public string Descripcion { get; set; } = string.Empty;
-        public decimal Monto { get; set; }
-        public string MontoFormateado { get; set; } = string.Empty;
-        public string FondoNombre { get; set; } = string.Empty;
-    }
 } 

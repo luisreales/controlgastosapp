@@ -20,17 +20,11 @@ namespace ControlGastosApp.Web.Middleware
 
         public async Task InvokeAsync(HttpContext context)
         {
-            // Solo validar métodos POST y PUT
-            if (context.Request.Method != "POST" && context.Request.Method != "PUT")
+            // Solo validar métodos POST y PUT que sean JSON
+            if ((context.Request.Method != "POST" && context.Request.Method != "PUT") || 
+                !context.Request.HasJsonContentType())
             {
                 await _next(context);
-                return;
-            }
-
-            // Verificar si el cuerpo está vacío
-            if (!context.Request.HasJsonContentType())
-            {
-                await HandleValidationError(context, "El contenido debe ser JSON");
                 return;
             }
 
