@@ -1,0 +1,201 @@
+@model ControlGastosApp.Web.ViewModels.Reportes.ComparativoPresupuestosViewModel
+@{
+    ViewData["Title"] = "Comparativo de Presupuestos";
+    Layout = "_Layout";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Comparativo de Presupuestos</h1>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Filtros</h6>
+    </div>
+    <div class="card-body">
+        <form asp-action="ComparativoPresupuestos" method="post">
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label asp-for="FechaInicio" class="control-label"></label>
+                        <input asp-for="FechaInicio" class="form-control" type="date" />
+                        <span asp-validation-for="FechaInicio" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label asp-for="FechaFin" class="control-label"></label>
+                        <input asp-for="FechaFin" class="form-control" type="date" />
+                        <span asp-validation-for="FechaFin" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="control-label">&nbsp;</label>
+                        <div>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-search fa-sm"></i> Buscar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (Model.Comparativo.Any())
+{
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Resultados del Comparativo</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Tipo de Gasto</th>
+                            <th class="text-right">Presupuestado</th>
+                            <th class="text-right">Ejecutado</th>
+                            <th class="text-right">Diferencia</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Comparativo)
+                        {
+                            <tr>
+                                <td>@item.TipoGastoNombre</td>
+                                <td class="text-right">@item.PresupuestadoFormateado</td>
+                                <td class="text-right">@item.EjecutadoFormateado</td>
+                                <td class="text-right @(item.Diferencia < 0 ? "text-danger" : "text-success")">
+                                    @item.DiferenciaFormateada
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                    <tfoot>
+                        <tr class="font-weight-bold">
+                            <td>Total</td>
+                            <td class="text-right">@Model.Comparativo.Sum(x => x.Presupuestado).ToString("C")</td>
+                            <td class="text-right">@Model.Comparativo.Sum(x => x.Ejecutado).ToString("C")</td>
+                            <td class="text-right @(Model.Comparativo.Sum(x => x.Diferencia) < 0 ? "text-danger" : "text-success")">
+                                @Model.Comparativo.Sum(x => x.Diferencia).ToString("C")
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Gráfico Comparativo</h6>
+        </div>
+        <div class="card-body">
+            <div class="chart-bar">
+                <canvas id="comparativoChart"></canvas>
+            </div>
+        </div>
+    </div>
+}
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        $(document).ready(function () {
+            @if (Model.Comparativo.Any())
+            {
+                <text>
+                var ctx = document.getElementById('comparativoChart').getContext('2d');
+                var myBarChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: @Html.Raw(Json.Serialize(Model.Comparativo.Select(x => x.TipoGastoNombre))),
+                        datasets: [{
+                            label: "Presupuestado",
+                            backgroundColor: "#4e73df",
+                            hoverBackgroundColor: "#2e59d9",
+                            borderColor: "#4e73df",
+                            data: @Html.Raw(Json.Serialize(Model.Comparativo.Select(x => x.Presupuestado))),
+                        },
+                        {
+                            label: "Ejecutado",
+                            backgroundColor: "#1cc88a",
+                            hoverBackgroundColor: "#17a673",
+                            borderColor: "#1cc88a",
+                            data: @Html.Raw(Json.Serialize(Model.Comparativo.Select(x => x.Ejecutado))),
+                        }],
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        layout: {
+                            padding: {
+                                left: 10,
+                                right: 25,
+                                top: 25,
+                                bottom: 0
+                            }
+                        },
+                        scales: {
+                            xAxes: [{
+                                time: {
+                                    unit: 'month'
+                                },
+                                gridLines: {
+                                    display: false,
+                                    drawBorder: false
+                                },
+                                ticks: {
+                                    maxTicksLimit: 6
+                                },
+                                maxBarThickness: 25,
+                            }],
+                            yAxes: [{
+                                ticks: {
+                                    min: 0,
+                                    maxTicksLimit: 5,
+                                    padding: 10,
+                                    callback: function(value, index, values) {
+                                        return '$' + value.toLocaleString();
+                                    }
+                                },
+                                gridLines: {
+                                    color: "rgb(234, 236, 244)",
+                                    zeroLineColor: "rgb(234, 236, 244)",
+                                    drawBorder: false,
+                                    borderDash: [2],
+                                    zeroLineBorderDash: [2]
+                                }
+                            }],
+                        },
+                        legend: {
+                            display: true
+                        },
+                        tooltips: {
+                            titleMarginBottom: 10,
+                            titleFontColor: '#6e707e',
+                            titleFontSize: 14,
+                            backgroundColor: "rgb(255,255,255)",
+                            bodyFontColor: "#858796",
+                            borderColor: '#dddfeb',
+                            borderWidth: 1,
+                            xPadding: 15,
+                            yPadding: 15,
+                            displayColors: false,
+                            caretPadding: 10,
+                            callbacks: {
+                                label: function(tooltipItem, chart) {
+                                    var datasetLabel = chart.datasets[tooltipItem.datasetIndex].label || '';
+                                    return datasetLabel + ': $' + tooltipItem.yLabel.toLocaleString();
+                                }
+                            }
+                        },
+                    }
+                });
+                </text>
+            }
+        });
+    </script>
+} 

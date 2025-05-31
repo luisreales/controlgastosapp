@@ -1,0 +1,78 @@
+@model List<ControlGastosApp.Web.ViewModels.Presupuestos.PresupuestoListViewModel>
+@{
+    ViewData["Title"] = "Presupuestos";
+    Layout = "_Layout";
+}
+
+<div class="container-fluid">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Presupuestos</h1>
+        <a href="@Url.Action("Create")" class="d-none d-sm-inline-block btn btn-primary shadow-sm">
+            <i class="fas fa-plus fa-sm text-white-50"></i> Nuevo Presupuesto
+        </a>
+    </div>
+
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Lista de Presupuestos</h6>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tipo de Gasto</th>
+                            <th>Mes</th>
+                            <th>Monto Presupuestado</th>
+                            <th>Monto Gastado</th>
+                            <th>Diferencia</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            var diferencia = item.Monto - item.MontoGastado;
+                            <tr>
+                                <td>@item.Id</td>
+                                <td>@item.TipoGastoNombre</td>
+                                <td>@item.Mes</td>
+                                <td>@item.Monto.ToString("C")</td>
+                                <td>@item.MontoGastado.ToString("C")</td>
+                                <td class="@(diferencia < 0 ? "text-danger" : "text-success")">
+                                    @diferencia.ToString("C")
+                                </td>
+                                <td>
+                                    <a href="@Url.Action("Edit", new { id = item.Id })" class="btn btn-primary btn-sm">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <a href="@Url.Action("Delete", new { id = item.Id })" class="btn btn-danger btn-sm">
+                                        <i class="fas fa-trash"></i>
+                                    </a>
+                                    <a href="@Url.Action("Detalle", new { id = item.Id })" class="btn btn-info btn-sm">
+                                        <i class="fas fa-info-circle"></i>
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+                }
+            });
+        });
+    </script>
+} 

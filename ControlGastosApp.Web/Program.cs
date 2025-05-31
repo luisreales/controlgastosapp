@@ -19,8 +19,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
 // Registrar servicios
-builder.Services.AddSingleton<IJsonDataService>(provider => 
-    new JsonDataService(Path.Combine(builder.Environment.ContentRootPath, "Data", "data.json")));
+builder.Services.AddSingleton<JsonDataService>();
+builder.Services.AddScoped<GastosService>();
 
 var app = builder.Build();
 

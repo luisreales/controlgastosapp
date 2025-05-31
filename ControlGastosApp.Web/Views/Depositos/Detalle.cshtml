@@ -1,0 +1,31 @@
+@using ControlGastosApp.Web.Models
+@{
+    ViewData["Title"] = "Detalle de Depósito";
+    Layout = "_Layout";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Detalle de Depósito</h1>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Información del Depósito</h6>
+    </div>
+    <div class="card-body">
+        <dl class="row">
+            <dt class="col-sm-3">Fecha:</dt>
+            <dd class="col-sm-9">@Model.Fecha.ToString("dd/MM/yyyy")</dd>
+
+            <dt class="col-sm-3">Fondo:</dt>
+            <dd class="col-sm-9">@Model.FondoMonetario?.Nombre</dd>
+
+            <dt class="col-sm-3">Monto:</dt>
+            <dd class="col-sm-9">$@Model.Monto.ToString("N2")</dd>
+
+            <dt class="col-sm-3">Descripción:</dt>
+            <dd class="col-sm-9">@Model.Descripcion</dd>
+        </dl>
+        <a href="@Url.Action("Index")" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Volver</a>
+    </div>
+</div> 

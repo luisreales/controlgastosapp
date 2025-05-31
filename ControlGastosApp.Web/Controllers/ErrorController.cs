@@ -4,7 +4,7 @@ namespace ControlGastosApp.Web.Controllers
 {
     public class ErrorController : Controller
     {
-        public IActionResult NotFound()
+        public new IActionResult NotFound()
         {
             return View();
         }

@@ -1,0 +1,66 @@
+@model List<ControlGastosApp.Web.Models.FondoMonetario>
+@{
+    ViewData["Title"] = "Fondos Monetarios";
+    Layout = "_Layout";
+}
+
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Fondos Monetarios</h1>
+    <a href="@Url.Action("Create")" class="d-none d-sm-inline-block btn btn-primary shadow-sm">
+        <i class="fas fa-plus fa-sm text-white-50"></i> Nuevo Fondo
+    </a>
+</div>
+
+<!-- DataTales Example -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Lista de Fondos Monetarios</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Nombre</th>
+                        <th>Tipo</th>
+                        <th>Saldo</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.Id</td>
+                            <td>@item.Nombre</td>
+                            <td>@item.Tipo</td>
+                            <td>@item.Saldo.ToString("C")</td>
+                            <td>
+                                <a href="@Url.Action("Edit", new { id = item.Id })" class="btn btn-primary btn-sm">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="@Url.Action("Delete", new { id = item.Id })" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+                }
+            });
+        });
+    </script>
+} 

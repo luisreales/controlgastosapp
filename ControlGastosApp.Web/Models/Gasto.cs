@@ -11,12 +11,12 @@ namespace ControlGastosApp.Web.Models
 
         [Required]
         public int TipoGastoId { get; set; }
-        public TipoGasto TipoGasto { get; set; }
+        public TipoGasto? TipoGasto { get; set; }
 
         [Required]
         [Range(0.01, double.MaxValue)]
         public decimal Monto { get; set; }
 
-        public string Descripcion { get; set; }
+        public string? Descripcion { get; set; }
     }
 } 

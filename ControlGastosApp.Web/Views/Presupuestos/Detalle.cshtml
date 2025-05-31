@@ -1,0 +1,119 @@
+@model ControlGastosApp.Web.ViewModels.Presupuestos.PresupuestoDetalleViewModel
+@{
+    ViewData["Title"] = "Detalle del Presupuesto";
+    Layout = "_Layout";
+}
+
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Detalle del Presupuesto</h1>
+</div>
+
+<div class="row">
+    <!-- Información del Presupuesto -->
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-primary shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                            Presupuesto Total
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.MontoPresupuestado.ToString("C")</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-calendar fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Monto Gastado -->
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-success shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                            Monto Gastado
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800">@Model.MontoGastado.ToString("C")</div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-dollar-sign fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Diferencia -->
+    <div class="col-xl-4 col-md-6 mb-4">
+        <div class="card border-left-info shadow h-100 py-2">
+            <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                    <div class="col mr-2">
+                        <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                            Diferencia
+                        </div>
+                        <div class="h5 mb-0 font-weight-bold text-gray-800 @(Model.Diferencia < 0 ? "text-danger" : "text-success")">
+                            @Model.Diferencia.ToString("C")
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <i class="fas fa-clipboard-list fa-2x text-gray-300"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Detalles de Gastos -->
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Gastos Registrados</h6>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Monto</th>
+                        <th>Fondo</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var gasto in Model.Gastos)
+                    {
+                        <tr>
+                            <td>@gasto.Fecha.ToShortDateString()</td>
+                            <td>@gasto.Monto.ToString("C")</td>
+                            <td>@gasto.FondoNombre</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="form-group">
+    <a asp-action="Index" class="btn btn-secondary">
+        <i class="fas fa-arrow-left"></i> Volver a la lista
+    </a>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $('#dataTable').DataTable({
+                "language": {
+                    "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
+                }
+            });
+        });
+    </script>
+} 

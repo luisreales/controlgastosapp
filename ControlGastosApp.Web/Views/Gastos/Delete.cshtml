@@ -1,0 +1,62 @@
+@model ControlGastosApp.Web.ViewModels.Gastos.RegistroGastoListViewModel
+@{
+    ViewData["Title"] = "Eliminar Gasto";
+    Layout = "_Layout";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Eliminar Gasto</h1>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Confirmar Eliminación</h6>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-warning">
+            <i class="fas fa-exclamation-triangle"></i>
+            ¿Está seguro que desea eliminar el gasto del <strong>@Model.FechaFormateada</strong> en <strong>@Model.Comercio</strong> por <strong>@Model.TotalFormateado</strong>?
+        </div>
+
+        <dl class="row">
+            <dt class="col-sm-3">Fecha:</dt>
+            <dd class="col-sm-9">@Model.FechaFormateada</dd>
+
+            <dt class="col-sm-3">Comercio:</dt>
+            <dd class="col-sm-9">@Model.Comercio</dd>
+
+            <dt class="col-sm-3">Tipo de Documento:</dt>
+            <dd class="col-sm-9">@Model.TipoDocumento</dd>
+
+            <dt class="col-sm-3">Total:</dt>
+            <dd class="col-sm-9">@Model.TotalFormateado</dd>
+        </dl>
+
+        <h6 class="m-0 font-weight-bold text-primary mt-4">Detalles</h6>
+        <div class="table-responsive mt-3">
+            <table class="table table-bordered">
+                <thead>
+                    <tr>
+                        <th>Tipo de Gasto</th>
+                        <th>Monto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var detalle in Model.Detalles)
+                    {
+                        <tr>
+                            <td>@detalle.TipoGastoNombre</td>
+                            <td>@detalle.MontoFormateado</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <form asp-action="DeleteConfirmed" method="post" class="mt-3">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Eliminar</button>
+            <a href="@Url.Action("Index")" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Cancelar</a>
+        </form>
+    </div>
+</div> 

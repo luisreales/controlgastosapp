@@ -1,0 +1,33 @@
+@model ControlGastosApp.Web.Models.Presupuesto
+@{
+    ViewData["Title"] = "Eliminar Presupuesto";
+    Layout = "_Layout";
+}
+
+<!-- Page Heading -->
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Eliminar Presupuesto</h1>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Confirmar Eliminación</h6>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-warning">
+            <h4 class="alert-heading">¡Advertencia!</h4>
+            <p>¿Está seguro que desea eliminar el presupuesto para el mes de @Model.Mes?</p>
+            <p>Esta acción no se puede deshacer.</p>
+        </div>
+
+        <form asp-action="Delete">
+            <input type="hidden" asp-for="Id" />
+            <button type="submit" class="btn btn-danger">
+                <i class="fas fa-trash"></i> Eliminar
+            </button>
+            <a asp-action="Index" class="btn btn-secondary">
+                <i class="fas fa-arrow-left"></i> Volver
+            </a>
+        </form>
+    </div>
+</div> 

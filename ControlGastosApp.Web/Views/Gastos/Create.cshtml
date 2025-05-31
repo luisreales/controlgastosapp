@@ -1,0 +1,147 @@
+@model ControlGastosApp.Web.ViewModels.Gastos.RegistroGastoCreateViewModel
+@{
+    ViewData["Title"] = "Crear Gasto";
+    Layout = "_Layout";
+}
+
+<div class="d-sm-flex align-items-center justify-content-between mb-4">
+    <h1 class="h3 mb-0 text-gray-800">Nuevo Gasto</h1>
+</div>
+
+<div class="card shadow mb-4">
+    <div class="card-header py-3">
+        <h6 class="m-0 font-weight-bold text-primary">Crear Gasto</h6>
+    </div>
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Fecha" class="control-label"></label>
+                        <input asp-for="Fecha" class="form-control" />
+                        <span asp-validation-for="Fecha" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="FondoId" class="control-label">Fondo Monetario</label>
+                        <select asp-for="FondoId" class="form-control" asp-items="ViewBag.Fondos">
+                            <option value="">Seleccione un fondo</option>
+                        </select>
+                        <span asp-validation-for="FondoId" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="Comercio" class="control-label"></label>
+                        <input asp-for="Comercio" class="form-control" />
+                        <span asp-validation-for="Comercio" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label asp-for="TipoDocumento" class="control-label">Tipo de Documento</label>
+                        <input asp-for="TipoDocumento" class="form-control" />
+                        <span asp-validation-for="TipoDocumento" class="text-danger"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Observaciones" class="control-label"></label>
+                <textarea asp-for="Observaciones" class="form-control" rows="3"></textarea>
+                <span asp-validation-for="Observaciones" class="text-danger"></span>
+            </div>
+
+            <h6 class="m-0 font-weight-bold text-primary mt-4">Detalles del Gasto</h6>
+            <div class="table-responsive mt-3">
+                <table class="table table-bordered" id="detalles-table">
+                    <thead>
+                        <tr>
+                            <th>Tipo de Gasto</th>
+                            <th>Monto</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @for (int i = 0; i < Model.Detalles.Count; i++)
+                        {
+                            <tr>
+                                <td>
+                                    <select name="Detalles[@i].TipoGastoId" class="form-control" asp-items="ViewBag.TiposGasto">
+                                        <option value="">Seleccione un tipo</option>
+                                    </select>
+                                    <span asp-validation-for="Detalles[i].TipoGastoId" class="text-danger"></span>
+                                </td>
+                                <td>
+                                    <input type="number" name="Detalles[@i].Monto" class="form-control" step="0.01" min="0" />
+                                    <span asp-validation-for="Detalles[i].Monto" class="text-danger"></span>
+                                </td>
+                                <td>
+                                    <button type="button" class="btn btn-danger btn-sm eliminar-detalle">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="form-group mt-3">
+                <button type="button" id="agregar-detalle" class="btn btn-success">
+                    <i class="fas fa-plus"></i> Agregar Detalle
+                </button>
+            </div>
+
+            <div class="form-group mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-save"></i> Guardar
+                </button>
+                <a href="@Url.Action("Index")" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        $(document).ready(function () {
+            var detalleIndex = @Model.Detalles.Count;
+
+            $("#agregar-detalle").click(function () {
+                var newRow = `
+                    <tr>
+                        <td>
+                            <select name="Detalles[${detalleIndex}].TipoGastoId" class="form-control" asp-items="ViewBag.TiposGasto">
+                                <option value="">Seleccione un tipo</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="number" name="Detalles[${detalleIndex}].Monto" class="form-control" step="0.01" min="0" />
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm eliminar-detalle">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                $("#detalles-table tbody").append(newRow);
+                detalleIndex++;
+            });
+
+            $(document).on("click", ".eliminar-detalle", function () {
+                $(this).closest("tr").remove();
+            });
+        });
+    </script>
+} 
