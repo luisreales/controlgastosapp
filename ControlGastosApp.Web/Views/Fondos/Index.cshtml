@@ -24,7 +24,6 @@
                     <tr>
                         <th>ID</th>
                         <th>Nombre</th>
-                        <th>Tipo</th>
                         <th>Saldo</th>
                         <th>Acciones</th>
                     </tr>
@@ -35,7 +34,6 @@
                         <tr>
                             <td>@item.Id</td>
                             <td>@item.Nombre</td>
-                            <td>@item.Tipo</td>
                             <td>@item.Saldo.ToString("C")</td>
                             <td>
                                 <a href="@Url.Action("Edit", new { id = item.Id })" class="btn btn-primary btn-sm">

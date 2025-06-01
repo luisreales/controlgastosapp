@@ -71,20 +71,20 @@
             var myBarChart = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: @Html.Raw(Json.Serialize(Model.Select(x => x.TipoGasto))),
+                    labels: @Html.Raw(Json.Serialize(Model?.Select(x => x.TipoGasto))),
                     datasets: [{
                         label: "Presupuestado",
                         backgroundColor: "#4e73df",
                         hoverBackgroundColor: "#2e59d9",
                         borderColor: "#4e73df",
-                        data: @Html.Raw(Json.Serialize(Model.Select(x => x.Presupuestado))),
+                        data: @Html.Raw(Json.Serialize(Model?.Select(x => x.Presupuestado))),
                     },
                     {
                         label: "Gastado",
                         backgroundColor: "#1cc88a",
                         hoverBackgroundColor: "#17a673",
                         borderColor: "#1cc88a",
-                        data: @Html.Raw(Json.Serialize(Model.Select(x => x.Gastado))),
+                        data: @Html.Raw(Json.Serialize(Model?.Select(x => x.Gastado))),
                     }],
                 },
                 options: {

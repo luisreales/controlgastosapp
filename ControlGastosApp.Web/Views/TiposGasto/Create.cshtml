@@ -1,12 +1,12 @@
 @model ControlGastosApp.Web.ViewModels.TiposGasto.TipoGastoViewModel
 @{
-    ViewData["Title"] = "Nuevo Tipo de Gasto";
+    ViewData["Title"] = "Crear Tipo de Gasto";
     Layout = "_Layout";
 }
 
 <!-- Page Heading -->
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Nuevo Tipo de Gasto</h1>
+    <h1 class="h3 mb-0 text-gray-800">Crear Tipo de Gasto</h1>
 </div>
 
 <div class="card shadow mb-4">
@@ -15,26 +15,34 @@
     </div>
     <div class="card-body">
         <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            
             <div class="form-group">
-                <label asp-for="Codigo">Código</label>
-                <input asp-for="Codigo" class="form-control" required>
-                <span asp-validation-for="Codigo" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Nombre">Nombre</label>
-                <input asp-for="Nombre" class="form-control" required>
+                <label asp-for="Nombre" class="control-label">Nombre del Tipo de Gasto</label>
+                <input asp-for="Nombre" class="form-control" placeholder="Ingrese el nombre del tipo de gasto" />
                 <span asp-validation-for="Nombre" class="text-danger"></span>
             </div>
+            
+            <div class="form-group">
+                <label asp-for="Codigo" class="control-label">Código de Gasto</label>
+                <input asp-for="Codigo" class="form-control" readonly />
+                <small class="form-text text-muted">El código se genera automáticamente siguiendo el formato 'A + número' (ej: A10, A11, etc.)</small>
+                <span asp-validation-for="Codigo" class="text-danger"></span>
+            </div>
+            
             <div class="form-group">
                 <label for="descripcion">Descripción</label>
-                <textarea class="form-control" id="descripcion" name="descripcion" rows="3"></textarea>
+                <textarea class="form-control" id="descripcion" asp-for="Descripcion" rows="3" 
+                    placeholder="Ingrese una descripción detallada del tipo de gasto"></textarea>
+                <span asp-validation-for="Descripcion" class="text-danger"></span>
             </div>
-            <div class="form-group">
+            
+            <div class="form-group mt-3">
                 <button type="submit" class="btn btn-primary">
                     <i class="fas fa-save"></i> Guardar
                 </button>
-                <a href="@Url.Action("Index")" class="btn btn-secondary">
-                    <i class="fas fa-arrow-left"></i> Volver
+                <a asp-action="Index" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Volver a la lista
                 </a>
             </div>
         </form>

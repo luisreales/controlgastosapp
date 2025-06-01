@@ -2,52 +2,61 @@ using Microsoft.AspNetCore.Mvc;
 using ControlGastosApp.Web.Services;
 using ControlGastosApp.Web.Models;
 using ControlGastosApp.Web.ViewModels.TiposGasto;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace ControlGastosApp.Web.Controllers
 {
     public class TiposGastoController : Controller
     {
-        private readonly JsonDataService _dataService;
+        private readonly SqlDataService _sqlDataService;
+        private readonly ILogger<TiposGastoController> _logger;
 
-        public TiposGastoController(JsonDataService dataService)
+        public TiposGastoController(SqlDataService sqlDataService, ILogger<TiposGastoController> logger)
         {
-            _dataService = dataService;
+            _sqlDataService = sqlDataService;
+            _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var tiposGasto = _dataService.GetTiposGasto();
+            var tiposGasto = await _sqlDataService.GetTiposGastoAsync();
             return View(tiposGasto);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            return View();
+            var codigo = await _sqlDataService.GenerarSiguienteCodigoTipoGastoAsync();
+            var model = new TipoGastoViewModel
+            {
+                Codigo = codigo,
+                Nombre = string.Empty
+            };
+            return View(model);
         }
 
         [HttpPost]
-        public IActionResult Create(TipoGastoViewModel model)
+        public async Task<IActionResult> Create(TipoGastoViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var tiposGasto = _dataService.GetTiposGasto();
+                model.Codigo = await _sqlDataService.GenerarSiguienteCodigoTipoGastoAsync();
+                
                 var nuevoTipoGasto = new TipoGasto
                 {
-                    Id = tiposGasto.Count > 0 ? tiposGasto.Max(t => t.Id) + 1 : 1,
                     Nombre = model.Nombre,
-                    Codigo = model.Codigo
+                    Codigo = model.Codigo,
+                    Descripcion = model.Descripcion
                 };
-                tiposGasto.Add(nuevoTipoGasto);
-                _dataService.SaveTiposGasto(tiposGasto);
+                await _sqlDataService.AddTipoGastoAsync(nuevoTipoGasto);
                 return RedirectToAction(nameof(Index));
             }
             return View(model);
         }
 
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var tiposGasto = _dataService.GetTiposGasto();
-            var tipoGasto = tiposGasto.FirstOrDefault(t => t.Id == id);
+            var tipoGasto = await _sqlDataService.GetTipoGastoByIdAsync(id);
             if (tipoGasto == null)
             {
                 return NotFound();
@@ -56,20 +65,20 @@ namespace ControlGastosApp.Web.Controllers
             var model = new TipoGastoViewModel
             {
                 Id = tipoGasto.Id,
-                Nombre = tipoGasto.Nombre,
-                Codigo = tipoGasto.Codigo
+                Nombre = tipoGasto.Nombre!,
+                Codigo = tipoGasto.Codigo,
+                Descripcion = tipoGasto.Descripcion
             };
 
             return View(model);
         }
 
         [HttpPost]
-        public IActionResult Edit(TipoGastoViewModel model)
+        public async Task<IActionResult> Edit(TipoGastoViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var tiposGasto = _dataService.GetTiposGasto();
-                var tipoGasto = tiposGasto.FirstOrDefault(t => t.Id == model.Id);
+                var tipoGasto = await _sqlDataService.GetTipoGastoByIdAsync(model.Id);
                 if (tipoGasto == null)
                 {
                     return NotFound();
@@ -77,17 +86,17 @@ namespace ControlGastosApp.Web.Controllers
 
                 tipoGasto.Nombre = model.Nombre;
                 tipoGasto.Codigo = model.Codigo;
+                tipoGasto.Descripcion = model.Descripcion;
 
-                _dataService.SaveTiposGasto(tiposGasto);
+                await _sqlDataService.UpdateTipoGastoAsync(tipoGasto);
                 return RedirectToAction(nameof(Index));
             }
             return View(model);
         }
 
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var tiposGasto = _dataService.GetTiposGasto();
-            var tipoGasto = tiposGasto.FirstOrDefault(t => t.Id == id);
+            var tipoGasto = await _sqlDataService.GetTipoGastoByIdAsync(id);
             if (tipoGasto == null)
             {
                 return NotFound();
@@ -97,17 +106,21 @@ namespace ControlGastosApp.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var tiposGasto = _dataService.GetTiposGasto();
-            var tipoGasto = tiposGasto.FirstOrDefault(t => t.Id == id);
-            if (tipoGasto == null)
+            _logger.LogInformation("Attempting to confirm deletion for TipoGasto with ID: {Id}", id);
+            var result = await _sqlDataService.DeleteTipoGastoAsync(id);
+            
+            if (!result.success)
             {
-                return NotFound();
+                _logger.LogWarning("Deletion of TipoGasto with ID {Id} failed: {Message}", id, result.message);
+                TempData["ErrorMessage"] = result.message;
             }
-
-            tiposGasto.Remove(tipoGasto);
-            _dataService.SaveTiposGasto(tiposGasto);
+            else
+            {
+                 _logger.LogInformation("Deletion of TipoGasto with ID {Id} succeeded.", id);
+                 TempData["SuccessMessage"] = result.message;
+            }
             return RedirectToAction(nameof(Index));
         }
     }

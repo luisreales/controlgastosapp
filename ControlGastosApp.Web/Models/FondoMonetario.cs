@@ -13,12 +13,6 @@ namespace ControlGastosApp.Web.Models
         [JsonPropertyName("nombre")]
         public required string Nombre { get; set; }
 
-        [JsonPropertyName("descripcion")]
-        public string? Descripcion { get; set; }
-
-        [JsonPropertyName("tipo")]
-        public string? Tipo { get; set; }
-
         [JsonPropertyName("saldo")]
         public decimal Saldo { get; set; }
 

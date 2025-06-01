@@ -11,13 +11,13 @@ namespace ControlGastosApp.Web.Controllers
 {
     public class ReportesController : Controller
     {
-        private readonly JsonDataService _dataService;
         private readonly ILogger<ReportesController> _logger;
+        private readonly SqlDataService _sqlDataService;
 
-        public ReportesController(JsonDataService dataService, ILogger<ReportesController> logger)
+        public ReportesController(ILogger<ReportesController> logger, SqlDataService sqlDataService)
         {
-            _dataService = dataService;
             _logger = logger;
+            _sqlDataService = sqlDataService;
         }
 
         public IActionResult Index()
@@ -25,17 +25,17 @@ namespace ControlGastosApp.Web.Controllers
             return View();
         }
 
-        public IActionResult GastosPorTipo()
+        public async Task<IActionResult> GastosPorTipo()
         {
-            var gastos = _dataService.GetGastos();
-            var tiposGasto = _dataService.GetTiposGasto();
+            var gastos = await _sqlDataService.GetGastosAsync();
+            var tiposGasto = await _sqlDataService.GetTiposGastoAsync();
             
             var reporte = gastos
                 .SelectMany(g => g.Detalles)
                 .GroupBy(d => d.TipoGastoId)
                 .Select(g => new GastoPorTipoViewModel
                 {
-                    TipoGasto = tiposGasto.First(t => t.Id == g.Key).Nombre,
+                    TipoGasto = tiposGasto.First(t => t.Id == g.Key).Nombre!,
                     Total = g.Sum(d => d.Monto)
                 })
                 .OrderByDescending(x => x.Total)
@@ -44,9 +44,9 @@ namespace ControlGastosApp.Web.Controllers
             return View(reporte);
         }
 
-        public IActionResult GastosPorMes()
+        public async Task<IActionResult> GastosPorMes()
         {
-            var gastos = _dataService.GetGastos();
+            var gastos = await _sqlDataService.GetGastosAsync();
             
             var reporte = gastos
                 .GroupBy(g => new { g.Fecha.Year, g.Fecha.Month })
@@ -61,16 +61,16 @@ namespace ControlGastosApp.Web.Controllers
             return View(reporte);
         }
 
-        public IActionResult Presupuestos()
+        public async Task<IActionResult> Presupuestos()
         {
-            var presupuestos = _dataService.GetPresupuestos();
-            var gastos = _dataService.GetGastos();
-            var tiposGasto = _dataService.GetTiposGasto();
+            var presupuestos = await _sqlDataService.GetPresupuestosAsync();
+            var gastos = await _sqlDataService.GetGastosAsync();
+            var tiposGasto = await _sqlDataService.GetTiposGastoAsync();
             
             var reporte = presupuestos
                 .Select(p => new PresupuestoReporteViewModel
                 {
-                    TipoGasto = tiposGasto.First(t => t.Id == p.TipoGastoId).Nombre,
+                    TipoGasto = tiposGasto.First(t => t.Id == p.TipoGastoId).Nombre!,
                     Presupuestado = p.Monto,
                     Gastado = gastos
                         .SelectMany(g => g.Detalles)
@@ -87,9 +87,9 @@ namespace ControlGastosApp.Web.Controllers
             return View(reporte);
         }
 
-        public IActionResult Fondos()
+        public async Task<IActionResult> Fondos()
         {
-            var fondos = _dataService.GetFondos();
+            var fondos = await _sqlDataService.GetFondosAsync();
             var total = fondos.Sum(f => f.Saldo);
             
             var reporte = fondos
@@ -116,14 +116,14 @@ namespace ControlGastosApp.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Movimientos([FromForm] MovimientosReporteViewModel model)
+        public async Task<IActionResult> Movimientos([FromForm] MovimientosReporteViewModel model)
         {
             if (!ModelState.IsValid)
             {
                 _logger.LogWarning("Modelo inválido en Movimientos: {Errors}", 
                     string.Join(", ", ModelState.Values
-                        .SelectMany(v => v.Errors)
-                        .Select(e => e.ErrorMessage)));
+                        .SelectMany(v => v.Errors.Where(e => e.ErrorMessage != null))
+                        .Select(e => e.ErrorMessage!)));
                 return View(model);
             }
 
@@ -132,7 +132,8 @@ namespace ControlGastosApp.Web.Controllers
                 _logger.LogInformation("Buscando movimientos entre {FechaInicio} y {FechaFin}", 
                     model.FechaInicio, model.FechaFin);
 
-                var gastos = _dataService.GetGastos()
+                var gastos = await _sqlDataService.GetGastosAsync();
+                var gastosMovimientos = gastos
                     .Where(g => g.Fecha.Date >= model.FechaInicio.Date && g.Fecha.Date <= model.FechaFin.Date)
                     .Select(g => new MovimientoViewModel
                     {
@@ -147,7 +148,8 @@ namespace ControlGastosApp.Web.Controllers
 
                 _logger.LogInformation("Encontrados {Count} gastos", gastos.Count);
 
-                var depositos = _dataService.GetDepositos()
+                var depositos = await _sqlDataService.GetDepositosAsync();
+                var depositosMovimientos = depositos
                     .Where(d => d.Fecha.Date >= model.FechaInicio.Date && d.Fecha.Date <= model.FechaFin.Date)
                     .Select(d => new MovimientoViewModel
                     {
@@ -162,7 +164,7 @@ namespace ControlGastosApp.Web.Controllers
 
                 _logger.LogInformation("Encontrados {Count} depósitos", depositos.Count);
 
-                model.Movimientos = gastos.Concat(depositos)
+                model.Movimientos = gastosMovimientos.Concat(depositosMovimientos)
                     .OrderByDescending(m => m.Fecha)
                     .ToList();
 
@@ -178,13 +180,13 @@ namespace ControlGastosApp.Web.Controllers
             }
         }
 
-        public IActionResult ComparativoPresupuestos()
+        public async Task<IActionResult> ComparativoPresupuestos()
         {
             var viewModel = new ComparativoPresupuestosViewModel
             {
                 FechaInicio = DateTime.Today.AddMonths(-1),
                 FechaFin = DateTime.Today,
-                TiposGasto = _dataService.GetTiposGasto()
+                TiposGasto = (await _sqlDataService.GetTiposGastoAsync())
                     .Select(t => new TipoGastoViewModel { Id = t.Id, Nombre = t.Nombre })
                     .ToList()
             };
@@ -192,17 +194,18 @@ namespace ControlGastosApp.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult ComparativoPresupuestos([FromForm] ComparativoPresupuestosViewModel model)
+        public async Task<IActionResult> ComparativoPresupuestos([FromForm] ComparativoPresupuestosViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                model.TiposGasto = _dataService.GetTiposGasto()
-                    .Select(t => new TipoGastoViewModel { Id = t.Id, Nombre = t.Nombre })
+                model.TiposGasto = (await _sqlDataService.GetTiposGastoAsync())
+                    .Select(t => new TipoGastoViewModel { Id = t.Id, Nombre = t.Nombre! })
                     .ToList();
                 return View(model);
             }
 
-            var presupuestos = _dataService.GetPresupuestos()
+            var presupuestosData = await _sqlDataService.GetPresupuestosAsync();
+            var presupuestos = presupuestosData
                 .Where(p =>
                 {
                     if (DateTime.TryParse(p.Mes + "-01", out var mesPresupuesto))
@@ -217,7 +220,8 @@ namespace ControlGastosApp.Web.Controllers
                     g => g.Sum(p => p.Monto)
                 );
 
-            var gastos = _dataService.GetGastos()
+            var gastosData = await _sqlDataService.GetGastosAsync();
+            var gastos = gastosData
                 .Where(g => g.Fecha >= model.FechaInicio && g.Fecha <= model.FechaFin)
                 .SelectMany(g => g.Detalles)
                 .GroupBy(d => d.TipoGastoId)
@@ -226,7 +230,8 @@ namespace ControlGastosApp.Web.Controllers
                     g => g.Sum(d => d.Monto)
                 );
 
-            model.Comparativo = _dataService.GetTiposGasto()
+            var tiposGastoComparativo = await _sqlDataService.GetTiposGastoAsync();
+            model.Comparativo = tiposGastoComparativo
                 .Select(t => new ComparativoViewModel
                 {
                     TipoGastoId = t.Id,
@@ -239,12 +244,13 @@ namespace ControlGastosApp.Web.Controllers
             _logger.LogInformation("Datos del comparativo: {Comparativo}", 
                 JsonSerializer.Serialize(model.Comparativo));
 
-            model.TiposGasto = _dataService.GetTiposGasto()
-                .Select(t => new TipoGastoViewModel { Id = t.Id, Nombre = t.Nombre })
+            model.TiposGasto = (await _sqlDataService.GetTiposGastoAsync())
+                .Select(t => new TipoGastoViewModel { Id = t.Id, Nombre = t.Nombre! })
                 .ToList();
 
             // Add movimientos data
-            var gastosMovimientos = _dataService.GetGastos()
+            var gastosParaMovimientos = await _sqlDataService.GetGastosAsync();
+            var gastosMovimientos = gastosParaMovimientos
                 .Where(g => g.Fecha.Date >= model.FechaInicio.Date && g.Fecha.Date <= model.FechaFin.Date)
                 .Select(g => new MovimientoViewModel
                 {
@@ -256,7 +262,7 @@ namespace ControlGastosApp.Web.Controllers
                 })
                 .ToList();
 
-            var depositosMovimientos = _dataService.GetDepositos()
+            var depositosMovimientos = (await _sqlDataService.GetDepositosAsync())
                 .Where(d => d.Fecha.Date >= model.FechaInicio.Date && d.Fecha.Date <= model.FechaFin.Date)
                 .Select(d => new MovimientoViewModel
                 {

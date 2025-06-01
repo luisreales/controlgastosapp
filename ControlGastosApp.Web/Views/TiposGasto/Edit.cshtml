@@ -18,7 +18,7 @@
             <input type="hidden" asp-for="Id">
             <div class="form-group">
                 <label asp-for="Codigo">Código</label>
-                <input asp-for="Codigo" class="form-control" required>
+                <input asp-for="Codigo" class="form-control" required readonly>
                 <span asp-validation-for="Codigo" class="text-danger"></span>
             </div>
             <div class="form-group">
@@ -28,7 +28,8 @@
             </div>
             <div class="form-group">
                 <label for="descripcion">Descripción</label>
-                <textarea class="form-control" id="descripcion" name="descripcion" rows="3">@Model.Descripcion</textarea>
+                <textarea class="form-control" id="descripcion" asp-for="Descripcion" rows="3"></textarea>
+                <span asp-validation-for="Descripcion" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <button type="submit" class="btn btn-primary">

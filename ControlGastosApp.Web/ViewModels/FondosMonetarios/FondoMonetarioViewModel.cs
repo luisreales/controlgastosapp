@@ -11,10 +11,6 @@ namespace ControlGastosApp.Web.ViewModels.FondosMonetarios
         [Display(Name = "Nombre")]
         public required string Nombre { get; set; }
 
-        [Required(ErrorMessage = "El tipo es requerido")]
-        [Display(Name = "Tipo")]
-        public required string Tipo { get; set; }
-
         [Display(Name = "Saldo")]
         [DataType(DataType.Currency)]
         public decimal Saldo { get; set; }
@@ -24,7 +20,6 @@ namespace ControlGastosApp.Web.ViewModels.FondosMonetarios
     {
         public int Id { get; set; }
         public required string Nombre { get; set; }
-        public required string Tipo { get; set; }
         public decimal Saldo { get; set; }
         public string SaldoFormateado => Saldo.ToString("C");
     }

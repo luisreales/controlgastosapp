@@ -4,6 +4,28 @@
     Layout = "_Layout";
 }
 
+@* Display Error Message from TempData *@
+@if (TempData["ErrorMessage"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["ErrorMessage"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
+@* Display Success Message from TempData *@
+@if (TempData["SuccessMessage"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["SuccessMessage"]
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+}
+
 <!-- Page Heading -->
 <div class="d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="h3 mb-0 text-gray-800">Tipos de Gasto</h1>
@@ -22,9 +44,10 @@
             <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th style="display: none;">ID</th>
                         <th>Código</th>
                         <th>Nombre</th>
+                        <th>Descripción</th>
                         <th>Acciones</th>
                     </tr>
                 </thead>
@@ -32,16 +55,23 @@
                     @foreach (var item in Model)
                     {
                         <tr>
-                            <td>@item.Id</td>
+                            <td style="display: none;">@item.Id</td>
                             <td>@item.Codigo</td>
                             <td>@item.Nombre</td>
+                            <td>@item.Descripcion</td>
                             <td>
                                 <a href="@Url.Action("Edit", new { id = item.Id })" class="btn btn-primary btn-sm">
                                     <i class="fas fa-edit"></i>
                                 </a>
-                                <a href="@Url.Action("Delete", new { id = item.Id })" class="btn btn-danger btn-sm">
+                                
+                                @* Form for delete - hidden for now, triggered by modal *@
+                                <form id="deleteForm-@item.Id" asp-action="DeleteConfirmed" asp-controller="TiposGasto" asp-route-id="@item.Id" method="post" style="display:none;">
+                                    @Html.AntiForgeryToken()
+                                </form>
+
+                                <button type="button" class="btn btn-danger btn-sm delete-button" data-toggle="modal" data-target="#deleteConfirmationModal" data-id="@item.Id">
                                     <i class="fas fa-trash"></i>
-                                </a>
+                                </button>
                             </td>
                         </tr>
                     }
@@ -51,13 +81,46 @@
     </div>
 </div>
 
+@* Bootstrap Modal for Delete Confirmation *@
+<div class="modal fade" id="deleteConfirmationModal" tabindex="-1" role="dialog" aria-labelledby="deleteConfirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteConfirmationModalLabel">Confirmar Eliminación</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                ¿Está seguro que desea eliminar este registro?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteButton">Eliminar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
         $(document).ready(function() {
             $('#dataTable').DataTable({
                 "language": {
                     "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
                 }
+            });
+
+            var itemIdToDelete;
+
+            $('#deleteConfirmationModal').on('show.bs.modal', function (event) {
+                var button = $(event.relatedTarget); // Button that triggered the modal
+                itemIdToDelete = button.data('id'); // Extract info from data-* attributes
+            });
+
+            $('#confirmDeleteButton').on('click', function () {
+                $('#deleteForm-' + itemIdToDelete).submit(); // Submit the corresponding form
             });
         });
     </script>

@@ -67,9 +67,9 @@
             var myPieChart = new Chart(ctx, {
                 type: 'pie',
                 data: {
-                    labels: @Html.Raw(Json.Serialize(Model.Select(x => x.Nombre))),
+                    labels: @Html.Raw(Json.Serialize(Model?.Select(x => x.Nombre))),
                     datasets: [{
-                        data: @Html.Raw(Json.Serialize(Model.Select(x => x.Saldo))),
+                        data: @Html.Raw(Json.Serialize(Model?.Select(x => x.Saldo))),
                         backgroundColor: [
                             '#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b',
                             '#858796', '#5a5c69', '#2e59d9', '#17a673', '#2c9faf'

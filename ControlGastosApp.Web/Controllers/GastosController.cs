@@ -5,23 +5,24 @@ using ControlGastosApp.Web.ViewModels.Gastos;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using System.Globalization;
+using System.Threading.Tasks;
 
 namespace ControlGastosApp.Web.Controllers
 {
     public class GastosController : Controller
     {
-        private readonly JsonDataService _dataService;
         private readonly GastosService _gastosService;
+        private readonly SqlDataService _sqlDataService;
 
-        public GastosController(JsonDataService dataService, GastosService gastosService)
+        public GastosController(GastosService gastosService, SqlDataService sqlDataService)
         {
-            _dataService = dataService;
             _gastosService = gastosService;
+            _sqlDataService = sqlDataService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var gastos = _dataService.GetGastos();
+            var gastos = await _sqlDataService.GetGastosAsync();
             var viewModel = gastos.Select(g => new RegistroGastoListViewModel
             {
                 Id = g.Id,
@@ -37,10 +38,10 @@ namespace ControlGastosApp.Web.Controllers
             return View(viewModel);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            var tiposGasto = _dataService.GetTiposGasto();
-            var fondos = _dataService.GetFondos();
+            var tiposGasto = await _sqlDataService.GetTiposGastoAsync();
+            var fondos = await _sqlDataService.GetFondosAsync();
 
             ViewBag.TiposGasto = new SelectList(tiposGasto, "Id", "Nombre");
             ViewBag.Fondos = new SelectList(fondos, "Id", "Nombre");
@@ -50,12 +51,12 @@ namespace ControlGastosApp.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(RegistroGastoCreateViewModel model)
+        public async Task<IActionResult> Create(RegistroGastoCreateViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                var tiposGasto = _dataService.GetTiposGasto();
-                var fondos = _dataService.GetFondos();
+                var tiposGasto = await _sqlDataService.GetTiposGastoAsync();
+                var fondos = await _sqlDataService.GetFondosAsync();
 
                 ViewBag.TiposGasto = new SelectList(tiposGasto, "Id", "Nombre");
                 ViewBag.Fondos = new SelectList(fondos, "Id", "Nombre");
@@ -77,7 +78,7 @@ namespace ControlGastosApp.Web.Controllers
                 }).ToList()
             };
 
-            var (success, message, presupuestosExcedidos) = _gastosService.ValidarYGuardarGasto(gasto);
+            var (success, message, presupuestosExcedidos) = await _gastosService.ValidarYGuardarGastoAsync(gasto);
 
             if (!success)
             {
@@ -96,8 +97,8 @@ namespace ControlGastosApp.Web.Controllers
                     ModelState.AddModelError("", message);
                 }
 
-                var tiposGasto = _dataService.GetTiposGasto();
-                var fondos = _dataService.GetFondos();
+                var tiposGasto = await _sqlDataService.GetTiposGastoAsync();
+                var fondos = await _sqlDataService.GetFondosAsync();
 
                 ViewBag.TiposGasto = new SelectList(tiposGasto, "Id", "Nombre");
                 ViewBag.Fondos = new SelectList(fondos, "Id", "Nombre");
@@ -109,16 +110,16 @@ namespace ControlGastosApp.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var gasto = _dataService.GetGasto(id);
+            var gasto = await _gastosService.GetRegistroGastoAsync(id);
             if (gasto == null)
             {
                 return NotFound();
             }
 
-            var tiposGasto = _dataService.GetTiposGasto();
-            var fondos = _dataService.GetFondos();
+            var tiposGasto = await _sqlDataService.GetTiposGastoAsync();
+            var fondos = await _sqlDataService.GetFondosAsync();
 
             ViewBag.TiposGasto = new SelectList(tiposGasto, "Id", "Nombre");
             ViewBag.Fondos = new SelectList(fondos, "Id", "Nombre");
@@ -151,7 +152,7 @@ namespace ControlGastosApp.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, RegistroGastoEditViewModel model)
+        public async Task<IActionResult> Edit(int id, RegistroGastoEditViewModel model)
         {
             if (id != model.Id)
             {
@@ -160,8 +161,8 @@ namespace ControlGastosApp.Web.Controllers
 
             if (!ModelState.IsValid)
             {
-                var tiposGasto = _dataService.GetTiposGasto();
-                var fondos = _dataService.GetFondos();
+                var tiposGasto = await _sqlDataService.GetTiposGastoAsync();
+                var fondos = await _sqlDataService.GetFondosAsync();
 
                 ViewBag.TiposGasto = new SelectList(tiposGasto, "Id", "Nombre");
                 ViewBag.Fondos = new SelectList(fondos, "Id", "Nombre");
@@ -192,7 +193,7 @@ namespace ControlGastosApp.Web.Controllers
                 }).ToList()
             };
 
-            var (success, message, presupuestosExcedidos) = _gastosService.ValidarYActualizarGasto(gasto);
+            var (success, message, presupuestosExcedidos) = await _gastosService.ValidarYActualizarGastoAsync(gasto);
 
             if (!success)
             {
@@ -211,8 +212,8 @@ namespace ControlGastosApp.Web.Controllers
                     ModelState.AddModelError("", message);
                 }
 
-                var tiposGasto = _dataService.GetTiposGasto();
-                var fondos = _dataService.GetFondos();
+                var tiposGasto = await _sqlDataService.GetTiposGastoAsync();
+                var fondos = await _sqlDataService.GetFondosAsync();
 
                 ViewBag.TiposGasto = new SelectList(tiposGasto, "Id", "Nombre");
                 ViewBag.Fondos = new SelectList(fondos, "Id", "Nombre");
@@ -231,14 +232,13 @@ namespace ControlGastosApp.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var gasto = _dataService.GetGasto(id);
+            var gasto = await _gastosService.GetRegistroGastoAsync(id);
             if (gasto == null)
             {
                 return NotFound();
             }
-
             var viewModel = new RegistroGastoListViewModel
             {
                 Id = gasto.Id,
@@ -247,31 +247,30 @@ namespace ControlGastosApp.Web.Controllers
                 Comercio = gasto.Comercio,
                 TipoDocumento = gasto.TipoDocumento,
                 Total = gasto.Total,
-                TotalFormateado = gasto.Total.ToString("C", new CultureInfo("es-CL")),
+                TotalFormateado = gasto.Total.ToString("C", new System.Globalization.CultureInfo("es-CL")),
                 FondoNombre = gasto.Fondo?.Nombre ?? "Desconocido",
                 Detalles = gasto.Detalles.Select(d => new DetalleGastoViewModel
                 {
                     TipoGastoNombre = d.TipoGasto?.Nombre ?? "Desconocido",
                     Monto = d.Monto,
-                    MontoFormateado = d.Monto.ToString("C", new CultureInfo("es-CL"))
+                    MontoFormateado = d.Monto.ToString("C", new System.Globalization.CultureInfo("es-CL"))
                 }).ToList()
             };
-
             return View(viewModel);
         }
 
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            _dataService.DeleteGasto(id);
+            await _gastosService.DeleteGastoAsync(id);
             TempData["SuccessMessage"] = "Gasto eliminado correctamente.";
             return RedirectToAction(nameof(Index));
         }
 
         public IActionResult Detalle(int id)
         {
-            var gasto = _dataService.GetGasto(id);
+            var gasto = _gastosService.GetGasto(id);
             if (gasto == null)
             {
                 return NotFound();

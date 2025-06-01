@@ -67,9 +67,17 @@ namespace ControlGastosApp.Web.Middleware
             }
         }
 
-        private List<string> ValidateJsonNode(JsonNode node, string path = "")
+        private List<string> ValidateJsonNode(JsonNode? node, string path = "")
         {
             var errors = new List<string>();
+
+            if (node == null)
+            {
+                // Handle null node if necessary, or just return empty errors
+                // For this context, let's assume null values are not allowed if the parent expects a non-null value,
+                // but the recursive call itself should not crash. We can add a specific check later if needed.
+                return errors;
+            }
 
             if (node is JsonObject obj)
             {
@@ -93,21 +101,21 @@ namespace ControlGastosApp.Web.Middleware
                 {
                     if (string.IsNullOrWhiteSpace(stringValue))
                     {
-                        errors.Add($"El campo '{path}' no puede estar vacío");
+                        errors.Add($"El campo '{path!}' no puede estar vacío");
                     }
                 }
                 else if (value.TryGetValue(out decimal decimalValue))
                 {
                     if (decimalValue < 0)
                     {
-                        errors.Add($"El campo '{path}' no puede ser negativo");
+                        errors.Add($"El campo '{path!}' no puede ser negativo");
                     }
                 }
                 else if (value.TryGetValue(out int intValue))
                 {
                     if (intValue < 0)
                     {
-                        errors.Add($"El campo '{path}' no puede ser negativo");
+                        errors.Add($"El campo '{path!}' no puede ser negativo");
                     }
                 }
             }

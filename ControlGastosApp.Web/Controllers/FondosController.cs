@@ -2,21 +2,22 @@ using Microsoft.AspNetCore.Mvc;
 using ControlGastosApp.Web.Services;
 using ControlGastosApp.Web.Models;
 using ControlGastosApp.Web.ViewModels.FondosMonetarios;
+using System.Threading.Tasks;
 
 namespace ControlGastosApp.Web.Controllers
 {
     public class FondosController : Controller
     {
-        private readonly JsonDataService _dataService;
+        private readonly SqlDataService _sqlDataService;
 
-        public FondosController(JsonDataService dataService)
+        public FondosController(SqlDataService sqlDataService)
         {
-            _dataService = dataService;
+            _sqlDataService = sqlDataService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var fondos = _dataService.GetFondos();
+            var fondos = await _sqlDataService.GetFondosAsync();
             return View(fondos);
         }
 
@@ -26,29 +27,24 @@ namespace ControlGastosApp.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(FondoMonetarioViewModel model)
+        public async Task<IActionResult> Create(FondoMonetarioViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var fondos = _dataService.GetFondos();
                 var nuevoFondo = new FondoMonetario
                 {
-                    Id = fondos.Count > 0 ? fondos.Max(f => f.Id) + 1 : 1,
                     Nombre = model.Nombre,
-                    Tipo = model.Tipo,
                     Saldo = model.Saldo
                 };
-                fondos.Add(nuevoFondo);
-                _dataService.SaveFondos(fondos);
+                await _sqlDataService.AddFondoAsync(nuevoFondo);
                 return RedirectToAction(nameof(Index));
             }
             return View(model);
         }
 
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var fondos = _dataService.GetFondos();
-            var fondo = fondos.FirstOrDefault(f => f.Id == id);
+            var fondo = await _sqlDataService.GetFondoByIdAsync(id);
             if (fondo == null)
             {
                 return NotFound();
@@ -58,7 +54,6 @@ namespace ControlGastosApp.Web.Controllers
             {
                 Id = fondo.Id,
                 Nombre = fondo.Nombre,
-                Tipo = fondo.Tipo ?? string.Empty,
                 Saldo = fondo.Saldo
             };
 
@@ -66,31 +61,28 @@ namespace ControlGastosApp.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(FondoMonetarioViewModel model)
+        public async Task<IActionResult> Edit(FondoMonetarioViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var fondos = _dataService.GetFondos();
-                var fondo = fondos.FirstOrDefault(f => f.Id == model.Id);
+                var fondo = await _sqlDataService.GetFondoByIdAsync(model.Id);
                 if (fondo == null)
                 {
                     return NotFound();
                 }
 
                 fondo.Nombre = model.Nombre;
-                fondo.Tipo = model.Tipo;
                 fondo.Saldo = model.Saldo;
 
-                _dataService.SaveFondos(fondos);
+                await _sqlDataService.UpdateFondoAsync(fondo);
                 return RedirectToAction(nameof(Index));
             }
             return View(model);
         }
 
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var fondos = _dataService.GetFondos();
-            var fondo = fondos.FirstOrDefault(f => f.Id == id);
+            var fondo = await _sqlDataService.GetFondoByIdAsync(id);
             if (fondo == null)
             {
                 return NotFound();
@@ -100,17 +92,9 @@ namespace ControlGastosApp.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var fondos = _dataService.GetFondos();
-            var fondo = fondos.FirstOrDefault(f => f.Id == id);
-            if (fondo == null)
-            {
-                return NotFound();
-            }
-
-            fondos.Remove(fondo);
-            _dataService.SaveFondos(fondos);
+            await _sqlDataService.DeleteFondoAsync(id);
             return RedirectToAction(nameof(Index));
         }
     }

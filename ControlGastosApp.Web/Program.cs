@@ -3,6 +3,7 @@ using ControlGastosApp.Web.Data;
 using ControlGastosApp.Web.Services;
 using ControlGastosApp.Web.Middleware;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -14,12 +15,17 @@ builder.Services.AddControllersWithViews()
         options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
     });
 
-// Configure database
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+// Configure SQL Server DbContext
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
+
+// Add logging for the connection string
+builder.Logging.AddConsole(); // Ensure console logging is enabled if not already
+
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseSqlServer(connectionString));
 
 // Registrar servicios
-builder.Services.AddSingleton<JsonDataService>();
+builder.Services.AddScoped<SqlDataService>();
 builder.Services.AddScoped<GastosService>();
 
 var app = builder.Build();

@@ -16,6 +16,10 @@ namespace ControlGastosApp.Web.Models
         [JsonPropertyName("codigo")]
         public string? Codigo { get; set; }
 
+        [StringLength(500)]
+        [JsonPropertyName("descripcion")]
+        public string? Descripcion { get; set; }
+
         public ICollection<Gasto>? Gastos { get; set; }
         public ICollection<Presupuesto>? Presupuestos { get; set; }
     }

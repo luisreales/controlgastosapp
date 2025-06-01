@@ -3,21 +3,22 @@ using ControlGastosApp.Web.Services;
 using ControlGastosApp.Web.Models;
 using ControlGastosApp.Web.ViewModels.Depositos;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Threading.Tasks;
 
 namespace ControlGastosApp.Web.Controllers
 {
     public class DepositosController : Controller
     {
-        private readonly JsonDataService _dataService;
+        private readonly SqlDataService _sqlDataService;
 
-        public DepositosController(JsonDataService dataService)
+        public DepositosController(SqlDataService sqlDataService)
         {
-            _dataService = dataService;
+            _sqlDataService = sqlDataService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var depositos = _dataService.GetDepositos();
+            var depositos = await _sqlDataService.GetDepositosAsync();
             var viewModel = depositos.Select(d => new DepositoListViewModel
             {
                 Id = d.Id,
@@ -31,47 +32,46 @@ namespace ControlGastosApp.Web.Controllers
             return View(viewModel);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            var fondos = _dataService.GetFondos();
+            var fondos = await _sqlDataService.GetFondosAsync();
             ViewBag.Fondos = new SelectList(fondos, "Id", "Nombre");
             return View(new DepositoCreateViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Create(DepositoCreateViewModel model)
+        public async Task<IActionResult> Create(DepositoCreateViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                var fondos = _dataService.GetFondos();
+                var fondos = await _sqlDataService.GetFondosAsync();
                 ViewBag.Fondos = new SelectList(fondos, "Id", "Nombre");
                 return View(model);
             }
 
             var deposito = new Deposito
             {
-                Id = _dataService.GetNextDepositoId(),
                 Fecha = model.Fecha,
                 FondoId = model.FondoId,
                 Monto = model.Monto,
                 Descripcion = model.Descripcion
             };
 
-            _dataService.AddDeposito(deposito);
+            await _sqlDataService.AddDepositoAsync(deposito);
             TempData["SuccessMessage"] = "Depósito creado exitosamente.";
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var deposito = _dataService.GetDeposito(id);
+            var deposito = await _sqlDataService.GetDepositoByIdAsync(id);
             if (deposito == null)
             {
                 return NotFound();
             }
 
-            var fondos = _dataService.GetFondos();
+            var fondos = await _sqlDataService.GetFondosAsync();
             ViewBag.Fondos = new SelectList(fondos, "Id", "Nombre", deposito.FondoId);
 
             var viewModel = new DepositoCreateViewModel
@@ -88,7 +88,7 @@ namespace ControlGastosApp.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult Edit(int id, DepositoCreateViewModel model)
+        public async Task<IActionResult> Edit(int id, DepositoCreateViewModel model)
         {
             if (id != model.Id)
             {
@@ -97,7 +97,7 @@ namespace ControlGastosApp.Web.Controllers
 
             if (!ModelState.IsValid)
             {
-                var fondos = _dataService.GetFondos();
+                var fondos = await _sqlDataService.GetFondosAsync();
                 ViewBag.Fondos = new SelectList(fondos, "Id", "Nombre", model.FondoId);
                 return View(model);
             }
@@ -111,14 +111,14 @@ namespace ControlGastosApp.Web.Controllers
                 Descripcion = model.Descripcion
             };
 
-            _dataService.UpdateDeposito(deposito);
+            await _sqlDataService.UpdateDepositoAsync(deposito);
             TempData["SuccessMessage"] = "Depósito actualizado exitosamente.";
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var deposito = _dataService.GetDeposito(id);
+            var deposito = await _sqlDataService.GetDepositoByIdAsync(id);
             if (deposito == null)
             {
                 return NotFound();
@@ -129,22 +129,16 @@ namespace ControlGastosApp.Web.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var deposito = _dataService.GetDeposito(id);
-            if (deposito == null)
-            {
-                return NotFound();
-            }
-
-            _dataService.DeleteDeposito(id);
+            await _sqlDataService.DeleteDepositoAsync(id);
             TempData["SuccessMessage"] = "Depósito eliminado exitosamente.";
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Detalle(int id)
+        public async Task<IActionResult> Detalle(int id)
         {
-            var deposito = _dataService.GetDeposito(id);
+            var deposito = await _sqlDataService.GetDepositoByIdAsync(id);
             if (deposito == null)
             {
                 return NotFound();

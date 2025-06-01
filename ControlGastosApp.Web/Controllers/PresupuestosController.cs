@@ -2,23 +2,25 @@ using Microsoft.AspNetCore.Mvc;
 using ControlGastosApp.Web.Services;
 using ControlGastosApp.Web.Models;
 using ControlGastosApp.Web.ViewModels.Presupuestos;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace ControlGastosApp.Web.Controllers
 {
     public class PresupuestosController : Controller
     {
-        private readonly JsonDataService _dataService;
+        private readonly SqlDataService _sqlDataService;
 
-        public PresupuestosController(JsonDataService dataService)
+        public PresupuestosController(SqlDataService sqlDataService)
         {
-            _dataService = dataService;
+            _sqlDataService = sqlDataService;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
-            var presupuestos = _dataService.GetPresupuestos();
-            var tiposGasto = _dataService.GetTiposGasto();
-            var gastos = _dataService.GetGastos();
+            var presupuestos = await _sqlDataService.GetPresupuestosAsync();
+            var tiposGasto = await _sqlDataService.GetTiposGastoAsync();
+            var gastos = await _sqlDataService.GetGastosAsync();
 
             var viewModel = presupuestos.Select(p => new PresupuestoListViewModel
             {
@@ -35,9 +37,9 @@ namespace ControlGastosApp.Web.Controllers
             return View(viewModel);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            var tiposGasto = _dataService.GetTiposGasto();
+            var tiposGasto = await _sqlDataService.GetTiposGastoAsync();
             var model = new PresupuestoCreateViewModel
             {
                 Mes = DateTime.Now.ToString("yyyy-MM"),
@@ -51,35 +53,31 @@ namespace ControlGastosApp.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(PresupuestoViewModel model)
+        public async Task<IActionResult> Create(PresupuestoViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var presupuestos = _dataService.GetPresupuestos();
                 var nuevoPresupuesto = new Presupuesto
                 {
-                    Id = presupuestos.Count > 0 ? presupuestos.Max(p => p.Id) + 1 : 1,
                     TipoGastoId = model.TipoGastoId,
                     Mes = model.Mes,
                     Monto = model.Monto
                 };
-                presupuestos.Add(nuevoPresupuesto);
-                _dataService.SavePresupuestos(presupuestos);
+                await _sqlDataService.AddPresupuestoAsync(nuevoPresupuesto);
                 return RedirectToAction(nameof(Index));
             }
             return View(model);
         }
 
-        public IActionResult Edit(int id)
+        public async Task<IActionResult> Edit(int id)
         {
-            var presupuestos = _dataService.GetPresupuestos();
-            var presupuesto = presupuestos.FirstOrDefault(p => p.Id == id);
+            var presupuesto = await _sqlDataService.GetPresupuestoByIdAsync(id);
             if (presupuesto == null)
             {
                 return NotFound();
             }
 
-            var tiposGasto = _dataService.GetTiposGasto();
+            var tiposGasto = await _sqlDataService.GetTiposGastoAsync();
             var model = new PresupuestoViewModel
             {
                 Id = presupuesto.Id,
@@ -98,12 +96,11 @@ namespace ControlGastosApp.Web.Controllers
         }
 
         [HttpPost]
-        public IActionResult Edit(PresupuestoViewModel model)
+        public async Task<IActionResult> Edit(PresupuestoViewModel model)
         {
             if (ModelState.IsValid)
             {
-                var presupuestos = _dataService.GetPresupuestos();
-                var presupuesto = presupuestos.FirstOrDefault(p => p.Id == model.Id);
+                var presupuesto = await _sqlDataService.GetPresupuestoByIdAsync(model.Id);
                 if (presupuesto == null)
                 {
                     return NotFound();
@@ -113,54 +110,44 @@ namespace ControlGastosApp.Web.Controllers
                 presupuesto.Mes = model.Mes;
                 presupuesto.Monto = model.Monto;
 
-                _dataService.SavePresupuestos(presupuestos);
+                await _sqlDataService.UpdatePresupuestoAsync(presupuesto);
                 return RedirectToAction(nameof(Index));
             }
             return View(model);
         }
 
-        public IActionResult Delete(int id)
+        public async Task<IActionResult> Delete(int id)
         {
-            var presupuestos = _dataService.GetPresupuestos();
-            var presupuesto = presupuestos.FirstOrDefault(p => p.Id == id);
+            var presupuesto = await _sqlDataService.GetPresupuestoByIdAsync(id);
             if (presupuesto == null)
             {
                 return NotFound();
             }
 
-            var tiposGasto = _dataService.GetTiposGasto();
+            var tiposGasto = await _sqlDataService.GetTiposGastoAsync();
             presupuesto.TipoGasto = tiposGasto.First(t => t.Id == presupuesto.TipoGastoId);
 
             return View(presupuesto);
         }
 
         [HttpPost]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            var presupuestos = _dataService.GetPresupuestos();
-            var presupuesto = presupuestos.FirstOrDefault(p => p.Id == id);
-            if (presupuesto == null)
-            {
-                return NotFound();
-            }
-
-            presupuestos.Remove(presupuesto);
-            _dataService.SavePresupuestos(presupuestos);
+            await _sqlDataService.DeletePresupuestoAsync(id);
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Detalle(int id)
+        public async Task<IActionResult> Detalle(int id)
         {
-            var presupuestos = _dataService.GetPresupuestos();
-            var presupuesto = presupuestos.FirstOrDefault(p => p.Id == id);
+            var presupuesto = await _sqlDataService.GetPresupuestoByIdAsync(id);
             if (presupuesto == null)
             {
                 return NotFound();
             }
 
-            var tiposGasto = _dataService.GetTiposGasto();
-            var gastos = _dataService.GetGastos();
-            var fondos = _dataService.GetFondos();
+            var tiposGasto = await _sqlDataService.GetTiposGastoAsync();
+            var gastos = await _sqlDataService.GetGastosAsync();
+            var fondos = await _sqlDataService.GetFondosAsync();
 
             var montoGastado = gastos
                 .SelectMany(g => g.Detalles)

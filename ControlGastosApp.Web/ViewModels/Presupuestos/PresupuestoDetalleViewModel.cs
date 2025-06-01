@@ -7,8 +7,8 @@ namespace ControlGastosApp.Web.ViewModels.Presupuestos
     public class PresupuestoDetalleViewModel
     {
         public int Id { get; set; }
-        public TipoGasto TipoGasto { get; set; }
-        public string Mes { get; set; }
+        public TipoGasto? TipoGasto { get; set; }
+        public string? Mes { get; set; }
         public decimal MontoPresupuestado { get; set; }
         public decimal MontoGastado { get; set; }
         public decimal Diferencia => MontoPresupuestado - MontoGastado;
@@ -18,8 +18,8 @@ namespace ControlGastosApp.Web.ViewModels.Presupuestos
     public class GastoDetalleViewModel
     {
         public DateTime Fecha { get; set; }
-        public string Descripcion { get; set; }
+        public string? Descripcion { get; set; }
         public decimal Monto { get; set; }
-        public string FondoNombre { get; set; }
+        public string? FondoNombre { get; set; }
     }
 } 

@@ -20,6 +20,12 @@ namespace ControlGastosApp.Web.Controllers
         public async Task<IActionResult> TestConnection()
         {
             var connectionString = _configuration.GetConnectionString("DefaultConnection");
+            
+            if (string.IsNullOrEmpty(connectionString))
+            {
+                return BadRequest(new { success = false, message = "Database connection string 'DefaultConnection' not found." });
+            }
+
             var result = await DatabaseConnectionTester.TestConnectionAsync(connectionString);
             
             if (result.success)
