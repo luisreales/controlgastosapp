@@ -9,6 +9,6 @@ namespace ControlGastosApp.Web.ViewModels.Depositos
         public string FechaFormateada { get; set; } = string.Empty;
         public string FondoNombre { get; set; } = string.Empty;
         public decimal Monto { get; set; }
-        public string MontoFormateado { get; set; } = string.Empty;
+        public string MontoFormateado { get; set; } = string.Empty;        
     }
 } 

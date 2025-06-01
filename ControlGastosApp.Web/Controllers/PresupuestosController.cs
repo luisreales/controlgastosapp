@@ -162,7 +162,7 @@ namespace ControlGastosApp.Web.Controllers
                 {
                     Fecha = x.Gasto.Fecha,
                     Monto = x.Detalle.Monto,
-                    FondoNombre = fondos.First(f => f.Id == x.Gasto.FondoId).Nombre
+                    FondoNombre = fondos.First(f => f.Id == x.Gasto.FondoMonetarioId).Nombre
                 })
                 .ToList();
 

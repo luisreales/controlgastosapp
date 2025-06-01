@@ -174,17 +174,41 @@ namespace ControlGastosApp.Web.Services
 
         public async Task<Deposito?> GetDepositoByIdAsync(int id)
         {
-            return await _context.Depositos.FindAsync(id);
+            return await _context.Depositos
+                .Include(d => d.FondoMonetario)
+                .FirstOrDefaultAsync(d => d.Id == id);
         }
 
         public async Task AddDepositoAsync(Deposito deposito)
         {
             _context.Depositos.Add(deposito);
+
+            // Update the "saldo" field in FondoMonetario
+            var fondo = await _context.FondosMonetarios.FindAsync(deposito.FondoMonetarioId);
+            if (fondo != null)
+            {
+            fondo.Saldo += deposito.Monto;
+            _context.FondosMonetarios.Update(fondo);
+            }
+
             await _context.SaveChangesAsync();
         }
 
         public async Task UpdateDepositoAsync(Deposito deposito)
         {
+            var existingDeposito = await _context.Depositos.AsNoTracking().FirstOrDefaultAsync(d => d.Id == deposito.Id);
+            if (existingDeposito != null)
+            {
+            var fondo = await _context.FondosMonetarios.FindAsync(deposito.FondoMonetarioId);
+            if (fondo != null)
+            {
+                // Adjust the "saldo" field in FondoMonetario
+                fondo.Saldo -= existingDeposito.Monto; // Subtract the old amount
+                fondo.Saldo += deposito.Monto; // Add the new amount
+                _context.FondosMonetarios.Update(fondo);
+            }
+            }
+
             _context.Depositos.Update(deposito);
             await _context.SaveChangesAsync();
         }
@@ -194,8 +218,16 @@ namespace ControlGastosApp.Web.Services
             var deposito = await _context.Depositos.FindAsync(id);
             if (deposito != null)
             {
-                _context.Depositos.Remove(deposito);
-                await _context.SaveChangesAsync();
+            var fondo = await _context.FondosMonetarios.FindAsync(deposito.FondoMonetarioId);
+            if (fondo != null)
+            {
+                // Adjust the "saldo" field in FondoMonetario
+                fondo.Saldo -= deposito.Monto;
+                _context.FondosMonetarios.Update(fondo);
+            }
+
+            _context.Depositos.Remove(deposito);
+            await _context.SaveChangesAsync();
             }
         }
 

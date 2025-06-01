@@ -41,6 +41,13 @@ namespace ControlGastosApp.Web.Data
                 .Property(p => p.Monto)
                 .HasPrecision(18, 2);
 
+            // Configure relationships
+            modelBuilder.Entity<Deposito>()
+                .HasOne(d => d.FondoMonetario)
+                .WithMany(f => f.Depositos)
+                .HasForeignKey(d => d.FondoMonetarioId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             // Configure relationships if needed (Entity Framework Core often infers based on conventions)
             // For example:
             // modelBuilder.Entity<RegistroGasto>()

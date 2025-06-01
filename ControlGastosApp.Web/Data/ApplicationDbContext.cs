@@ -24,7 +24,7 @@ namespace ControlGastosApp.Web.Data
             modelBuilder.Entity<FondoMonetario>()
                 .HasMany(f => f.Depositos)
                 .WithOne(d => d.FondoMonetario)
-                .HasForeignKey(d => d.FondoId)
+                .HasForeignKey(d => d.FondoMonetarioId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<TipoGasto>()

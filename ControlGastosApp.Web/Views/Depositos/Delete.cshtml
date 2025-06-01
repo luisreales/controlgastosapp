@@ -17,7 +17,7 @@
             <i class="fas fa-exclamation-triangle"></i>
             ¿Está seguro que desea eliminar el depósito del <strong>@Model.Fecha.ToString("dd/MM/yyyy")</strong> por <strong>$@Model.Monto.ToString("N2")</strong>?
         </div>
-        <form asp-action="Delete" method="post">
+        <form asp-action="DeleteConfirmed" method="post">
             <input type="hidden" name="Id" value="@Model.Id" />
             <div class="form-group">
                 <button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Eliminar</button>
@@ -25,4 +25,4 @@
             </div>
         </form>
     </div>
-</div> 
+</div>

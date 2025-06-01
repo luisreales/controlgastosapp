@@ -15,7 +15,7 @@ public class RegistroGastoEditViewModel
 
     [Required(ErrorMessage = "El fondo es requerido")]
     [Display(Name = "Fondo")]
-    public int FondoId { get; set; }
+    public int FondoMonetarioId { get; set; }
 
     [Required(ErrorMessage = "El comercio es requerido")]
     [Display(Name = "Comercio")]

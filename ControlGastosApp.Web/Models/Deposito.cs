@@ -13,8 +13,8 @@ namespace ControlGastosApp.Web.Models
         public DateTime Fecha { get; set; }
 
         [Required]
-        [JsonPropertyName("fondoId")]
-        public int FondoId { get; set; }
+        [JsonPropertyName("fondoMonetarioId")]
+        public int FondoMonetarioId { get; set; }
 
         [JsonPropertyName("fondoMonetario")]
         public FondoMonetario? FondoMonetario { get; set; }

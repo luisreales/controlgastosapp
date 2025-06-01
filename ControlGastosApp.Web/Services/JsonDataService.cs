@@ -29,7 +29,7 @@ namespace ControlGastosApp.Web.Services
             foreach (var gasto in _data.Gastos)
             {
                 // Cargar Fondo
-                gasto.Fondo = _data.Fondos.FirstOrDefault(f => f.Id == gasto.FondoId);
+                gasto.Fondo = _data.Fondos.FirstOrDefault(f => f.Id == gasto.FondoMonetarioId);
 
                 // Cargar TipoGasto para cada detalle
                 foreach (var detalle in gasto.Detalles)
@@ -41,7 +41,7 @@ namespace ControlGastosApp.Web.Services
             // Cargar propiedades de navegación para los depósitos
             foreach (var deposito in _data.Depositos)
             {
-                deposito.FondoMonetario = _data.Fondos.FirstOrDefault(f => f.Id == deposito.FondoId);
+                deposito.FondoMonetario = _data.Fondos.FirstOrDefault(f => f.Id == deposito.FondoMonetarioId);
             }
         }
 
@@ -134,7 +134,7 @@ namespace ControlGastosApp.Web.Services
             if (gasto != null)
             {
                 // Cargar propiedades de navegación para el gasto específico
-                gasto.Fondo = _data.Fondos.FirstOrDefault(f => f.Id == gasto.FondoId);
+                gasto.Fondo = _data.Fondos.FirstOrDefault(f => f.Id == gasto.FondoMonetarioId);
                 foreach (var detalle in gasto.Detalles)
                 {
                     detalle.TipoGasto = _data.TiposGasto.FirstOrDefault(t => t.Id == detalle.TipoGastoId);
@@ -148,7 +148,7 @@ namespace ControlGastosApp.Web.Services
             var deposito = _data.Depositos.FirstOrDefault(d => d.Id == id);
             if (deposito != null)
             {
-                deposito.FondoMonetario = _data.Fondos.FirstOrDefault(f => f.Id == deposito.FondoId);
+                deposito.FondoMonetario = _data.Fondos.FirstOrDefault(f => f.Id == deposito.FondoMonetarioId);
             }
             return deposito;
         }

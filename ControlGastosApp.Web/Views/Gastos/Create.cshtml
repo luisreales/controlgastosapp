@@ -26,11 +26,11 @@
                 </div>
                 <div class="col-md-4">
                     <div class="form-group">
-                        <label asp-for="FondoId" class="control-label">Fondo Monetario</label>
-                        <select asp-for="FondoId" class="form-control" asp-items="ViewBag.Fondos">
+                        <label asp-for="FondoMonetarioId" class="control-label">Fondo Monetario</label>
+                        <select asp-for="FondoMonetarioId" class="form-control" asp-items="ViewBag.Fondos">
                             <option value="">Seleccione un fondo</option>
                         </select>
-                        <span asp-validation-for="FondoId" class="text-danger"></span>
+                        <span asp-validation-for="FondoMonetarioId" class="text-danger"></span>
                     </div>
                 </div>
                 <div class="col-md-4">
@@ -82,14 +82,10 @@
                                     <span asp-validation-for="Detalles[i].TipoGastoId" class="text-danger"></span>
                                 </td>
                                 <td>
-                                    <input asp-for="Detalles[i].Monto" class="form-control" type="text" 
-                                           pattern="^\d{1,15}(\.\d{0,2})?$" 
-                                           oninput="validateMonto(this)"
-                                           maxlength="18"
-                                           data-val="true" 
-                                           data-val-required="El monto es requerido"
-                                           data-val-regex="El monto debe ser un número válido con máximo 15 dígitos"
-                                           data-val-regex-pattern="^\d{1,15}(\.\d{0,2})?$" />
+                                    <input asp-for="Detalles[i].Monto" class="form-control" type="number"
+                                           step="0.01"
+                                           min="0.01"
+                                           oninput="if(this.value.length > 15) this.value = this.value.slice(0,15);" required />
                                     <span asp-validation-for="Detalles[i].Monto" class="text-danger"></span>
                                 </td>
                                 <td>
@@ -120,11 +116,57 @@
 </div>
 
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
     <script>
-        $(document).ready(function() {
-            $("#agregar-detalle").click(function() {
+        $(document).ready(function () {
+            $("#agregar-detalle").click(function () {
                 agregarDetalle();
+            });
+
+            // Marcar tipos de gasto excedidos
+            const tiposExcedidos = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(ViewBag.TiposGastoExcedidos ?? new List<int>()));
+            if (tiposExcedidos.length > 0) {
+                const selects = document.querySelectorAll('select[name^="Detalles"]');
+                selects.forEach(select => {
+                    if (tiposExcedidos.includes(parseInt(select.value))) {
+                        select.classList.add("is-invalid");
+                        const errorSpan = select.closest("td").querySelector("span.text-danger");
+                        if (errorSpan) {
+                            errorSpan.textContent = "Se excedió el presupuesto para este tipo de gasto.";
+                        }
+                    }
+                });
+            }
+
+            // Validar duplicados al enviar el formulario
+            document.getElementById("gastoForm").addEventListener("submit", function (e) {
+                const tipoGastoSelects = document.querySelectorAll('select[name^="Detalles"]');
+                const tipoGastosSeleccionados = [];
+                let duplicado = false;
+
+                tipoGastoSelects.forEach(select => {
+                    const value = select.value;
+                    if (value) {
+                        if (tipoGastosSeleccionados.includes(value)) {
+                            duplicado = true;
+                            select.classList.add("is-invalid");
+                            const errorSpan = select.closest("td").querySelector("span.text-danger");
+                            if (errorSpan) errorSpan.textContent = "No se puede repetir el mismo tipo de gasto.";
+                        } else {
+                            tipoGastosSeleccionados.push(value);
+                            select.classList.remove("is-invalid");
+                            const errorSpan = select.closest("td").querySelector("span.text-danger");
+                            if (errorSpan) errorSpan.textContent = "";
+                        }
+                    }
+                });
+
+                if (duplicado) {
+                    e.preventDefault(); // Bloquea envío si hay duplicados
+                }
             });
         });
 
@@ -135,22 +177,22 @@
                     <td>
                         <select name="Detalles[${index}].TipoGastoId" class="form-control" data-val="true" data-val-required="El tipo de gasto es requerido">
                             <option value="">Seleccione un tipo de gasto</option>
-                            @foreach (var item in ViewBag.TiposGasto)
-                            {
-                                <option value="@item.Value">@item.Text</option>
-                            }
+        @foreach (var item in ViewBag.TiposGasto)
+        {
+                                    <option value="@item.Value">@item.Text</option>
+        }
                         </select>
                         <span class="text-danger field-validation-valid" data-valmsg-for="Detalles[${index}].TipoGastoId" data-valmsg-replace="true"></span>
                     </td>
                     <td>
-                        <input name="Detalles[${index}].Monto" class="form-control" type="text" 
-                               pattern="^\d{1,15}(\.\d{0,2})?$" 
+                        <input name="Detalles[${index}].Monto" class="form-control" type="text"
+                               pattern="^\\d{1,15}(\\.\\d{0,2})?$"
                                oninput="validateMonto(this)"
                                maxlength="18"
-                               data-val="true" 
+                               data-val="true"
                                data-val-required="El monto es requerido"
                                data-val-regex="El monto debe ser un número válido con máximo 15 dígitos"
-                               data-val-regex-pattern="^\d{1,15}(\.\d{0,2})?$" />
+                               data-val-regex-pattern="^\\d{1,15}(\\.\\d{0,2})?$" />
                         <span class="text-danger field-validation-valid" data-valmsg-for="Detalles[${index}].Monto" data-valmsg-replace="true"></span>
                     </td>
                     <td>
@@ -168,27 +210,23 @@
         function validateMonto(input) {
             let value = input.value;
 
-            // Allow only numbers and a single decimal point
+            // Permitir solo números y un punto decimal
             value = value.replace(/[^0-9.]/g, '');
             const decimalIndex = value.indexOf('.');
             if (decimalIndex !== -1) {
                 const parts = value.split('.');
-                // Ensure only one decimal point
                 value = parts[0] + (parts[1] ? '.' + parts[1] : '');
-                // Truncate decimal part to 2 digits
                 if (parts[1] && parts[1].length > 2) {
                     value = parts[0] + '.' + parts[1].substring(0, 2);
                 }
             }
-            
-            // Check and truncate digits before decimal point
-            const currentValueBeforeDot = value.split('.')[0];
-            if (currentValueBeforeDot.length > 15) {
-                 // Truncate the part before the decimal
-                value = currentValueBeforeDot.substring(0, 15) + (decimalIndex !== -1 ? value.substring(decimalIndex) : '');
+
+            const entero = value.split('.')[0];
+            if (entero.length > 15) {
+                value = entero.substring(0, 15) + (decimalIndex !== -1 ? value.substring(decimalIndex) : '');
             }
 
             input.value = value;
         }
     </script>
-} 
+}

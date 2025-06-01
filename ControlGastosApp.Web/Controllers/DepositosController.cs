@@ -26,7 +26,7 @@ namespace ControlGastosApp.Web.Controllers
                 FechaFormateada = d.Fecha.ToString("dd/MM/yyyy"),
                 FondoNombre = d.FondoMonetario?.Nombre ?? "Desconocido",
                 Monto = d.Monto,
-                MontoFormateado = d.Monto.ToString("C")
+                MontoFormateado = d.Monto.ToString("C"),                
             }).ToList();
 
             return View(viewModel);
@@ -36,7 +36,13 @@ namespace ControlGastosApp.Web.Controllers
         {
             var fondos = await _sqlDataService.GetFondosAsync();
             ViewBag.Fondos = new SelectList(fondos, "Id", "Nombre");
-            return View(new DepositoCreateViewModel());
+
+            var viewModel = new DepositoCreateViewModel
+            {
+                Fecha = DateTime.Now.Date
+            };
+
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -53,7 +59,7 @@ namespace ControlGastosApp.Web.Controllers
             var deposito = new Deposito
             {
                 Fecha = model.Fecha,
-                FondoId = model.FondoId,
+                FondoMonetarioId = model.FondoMonetarioId,
                 Monto = model.Monto,
                 Descripcion = model.Descripcion
             };
@@ -72,13 +78,13 @@ namespace ControlGastosApp.Web.Controllers
             }
 
             var fondos = await _sqlDataService.GetFondosAsync();
-            ViewBag.Fondos = new SelectList(fondos, "Id", "Nombre", deposito.FondoId);
+            ViewBag.Fondos = new SelectList(fondos, "Id", "Nombre", deposito.FondoMonetarioId);
 
             var viewModel = new DepositoCreateViewModel
             {
                 Id = deposito.Id,
                 Fecha = deposito.Fecha,
-                FondoId = deposito.FondoId,
+                FondoMonetarioId = deposito.FondoMonetarioId,
                 Monto = deposito.Monto,
                 Descripcion = deposito.Descripcion
             };
@@ -98,7 +104,7 @@ namespace ControlGastosApp.Web.Controllers
             if (!ModelState.IsValid)
             {
                 var fondos = await _sqlDataService.GetFondosAsync();
-                ViewBag.Fondos = new SelectList(fondos, "Id", "Nombre", model.FondoId);
+                ViewBag.Fondos = new SelectList(fondos, "Id", "Nombre", model.FondoMonetarioId);
                 return View(model);
             }
 
@@ -106,7 +112,7 @@ namespace ControlGastosApp.Web.Controllers
             {
                 Id = model.Id,
                 Fecha = model.Fecha,
-                FondoId = model.FondoId,
+                FondoMonetarioId = model.FondoMonetarioId,
                 Monto = model.Monto,
                 Descripcion = model.Descripcion
             };

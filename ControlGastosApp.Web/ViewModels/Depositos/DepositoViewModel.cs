@@ -14,7 +14,7 @@ namespace ControlGastosApp.Web.ViewModels.Depositos
 
         [Required(ErrorMessage = "El fondo monetario es requerido")]
         [Display(Name = "Fondo Monetario")]
-        public int FondoId { get; set; }
+        public int FondoMonetarioId { get; set; }
 
         [Required(ErrorMessage = "El monto es requerido")]
         [Range(0.01, double.MaxValue, ErrorMessage = "El monto debe ser mayor a 0")]

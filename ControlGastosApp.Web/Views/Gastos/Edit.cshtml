@@ -27,11 +27,11 @@
                 </div>
                 <div class="col-md-6">
                     <div class="form-group">
-                        <label asp-for="FondoId" class="control-label">Fondo Monetario</label>
-                        <select asp-for="FondoId" class="form-control" asp-items="ViewBag.Fondos">
+                        <label asp-for="FondoMonetarioId" class="control-label">Fondo Monetario</label>
+                        <select asp-for="FondoMonetarioId" class="form-control" asp-items="ViewBag.Fondos">
                             <option value="">Seleccione un fondo</option>
                         </select>
-                        <span asp-validation-for="FondoId" class="text-danger"></span>
+                        <span asp-validation-for="FondoMonetarioId" class="text-danger"></span>
                     </div>
                 </div>
             </div>
@@ -84,8 +84,11 @@
                                     <span asp-validation-for="Detalles[i].TipoGastoId" class="text-danger"></span>
                                 </td>
                                 <td>
-                                    <input type="number" name="Detalles[@i].Monto" class="form-control" step="0.01" min="0" value="@Model.Detalles[i].Monto" />
-                                    <span asp-validation-for="Detalles[i].Monto" class="text-danger"></span>
+                                    <input name="Detalles[@i].Monto" class="form-control" type="number"
+                                           step="0.01"
+                                           min="0.01"
+                                           oninput="if(this.value.length > 15) this.value = this.value.slice(0,15);" value="@(Model.Detalles[i].Monto.ToString("0.##", System.Globalization.CultureInfo.InvariantCulture))" />
+                                    <span asp-validation-for="Detalles[@i].Monto" class="text-danger"></span>
                                 </td>
                                 <td>
                                     <button type="button" class="btn btn-danger btn-sm eliminar-detalle">
@@ -93,6 +96,7 @@
                                     </button>
                                 </td>
                             </tr>
+                           
                         }
                     </tbody>
                 </table>

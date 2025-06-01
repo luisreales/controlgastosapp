@@ -67,7 +67,7 @@ namespace ControlGastosApp.Web.Controllers
             {
                 var tiposGasto = await _sqlDataService.GetTiposGastoAsync();
                 var fondos = await _sqlDataService.GetFondosAsync();
-                
+
                 ViewBag.TiposGasto = new SelectList(tiposGasto, "Id", "Nombre");
                 ViewBag.Fondos = new SelectList(fondos, "Id", "Nombre");
                 ViewBag.TiposDocumento = new SelectList(Enum.GetValues(typeof(TipoDocumento))
@@ -89,7 +89,7 @@ namespace ControlGastosApp.Web.Controllers
                 var gasto = new RegistroGasto
                 {
                     Fecha = model.Fecha,
-                    FondoId = model.FondoId,
+                    FondoMonetarioId = model.FondoMonetarioId,
                     Comercio = model.Comercio,
                     TipoDocumento = model.TipoDocumento,
                     Observaciones = model.Observaciones,
@@ -106,10 +106,12 @@ namespace ControlGastosApp.Web.Controllers
                 {
                     if (presupuestosExcedidos != null)
                     {
+                        ViewBag.TiposGastoExcedidos = presupuestosExcedidos.Select(p => p.TipoGastoId).ToList();
+
                         foreach (var excedido in presupuestosExcedidos)
                         {
-                            ModelState.AddModelError("", 
-                                $"El presupuesto para {excedido.TipoGastoNombre} se ha excedido por {excedido.Excedente.ToString("C", new CultureInfo("es-CL"))}. " +
+                            ModelState.AddModelError("",
+                                $"El presupuesto para el tipo de gasto {excedido.TipoGastoNombre} se ha excedido por {excedido.Excedente.ToString("C", new CultureInfo("es-CL"))}. " +
                                 $"Presupuesto: {excedido.MontoPresupuestado.ToString("C", new CultureInfo("es-CL"))}, " +
                                 $"Gastado: {excedido.MontoGastado.ToString("C", new CultureInfo("es-CL"))}");
                         }
@@ -150,6 +152,7 @@ namespace ControlGastosApp.Web.Controllers
             }
         }
 
+
         public async Task<IActionResult> Edit(int id)
         {
             var gasto = await _gastosService.GetRegistroGastoAsync(id);
@@ -175,7 +178,7 @@ namespace ControlGastosApp.Web.Controllers
             {
                 Id = gasto.Id,
                 Fecha = gasto.Fecha,
-                FondoId = gasto.FondoId,
+                FondoMonetarioId = gasto.FondoMonetarioId,
                 Comercio = gasto.Comercio,
                 TipoDocumento = gasto.TipoDocumento,
                 Observaciones = gasto.Observaciones,
@@ -221,7 +224,7 @@ namespace ControlGastosApp.Web.Controllers
             {
                 Id = model.Id,
                 Fecha = model.Fecha,
-                FondoId = model.FondoId,
+                FondoMonetarioId = model.FondoMonetarioId,
                 Comercio = model.Comercio,
                 TipoDocumento = model.TipoDocumento,
                 Observaciones = model.Observaciones,
@@ -239,9 +242,11 @@ namespace ControlGastosApp.Web.Controllers
             {
                 if (presupuestosExcedidos != null)
                 {
+                    ViewBag.TiposGastoExcedidos = presupuestosExcedidos.Select(p => p.TipoGastoId).ToList();
+
                     foreach (var excedido in presupuestosExcedidos)
                     {
-                        ModelState.AddModelError("", 
+                        ModelState.AddModelError("",
                             $"El presupuesto para {excedido.TipoGastoNombre} se ha excedido por {excedido.Excedente.ToString("C", new CultureInfo("es-CL"))}. " +
                             $"Presupuesto: {excedido.MontoPresupuestado.ToString("C", new CultureInfo("es-CL"))}, " +
                             $"Gastado: {excedido.MontoGastado.ToString("C", new CultureInfo("es-CL"))}");
@@ -272,6 +277,7 @@ namespace ControlGastosApp.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
+
         public async Task<IActionResult> Delete(int id)
         {
             var gasto = await _gastosService.GetRegistroGastoAsync(id);
@@ -284,10 +290,18 @@ namespace ControlGastosApp.Web.Controllers
         }
 
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            var gasto = await _gastosService.GetRegistroGastoAsync(id);
+            if (gasto == null)
+            {
+                return NotFound();
+            }
+
             await _gastosService.DeleteGastoAsync(id);
-            TempData["SuccessMessage"] = "Gasto eliminado correctamente.";
+            TempData["SuccessMessage"] = "Gasto eliminado correctamente. El saldo del fondo fue actualizado.";
+
             return RedirectToAction(nameof(Index));
         }
 

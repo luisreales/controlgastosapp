@@ -14,8 +14,8 @@ namespace ControlGastosApp.Web.Models
         public DateTime Fecha { get; set; }
 
         [Required(ErrorMessage = "El fondo monetario es requerido")]
-        [JsonPropertyName("fondoId")]
-        public int FondoId { get; set; }
+        [JsonPropertyName("fondoMonetarioId")]
+        public int FondoMonetarioId { get; set; }
 
         [JsonPropertyName("fondo")]
         public FondoMonetario? Fondo { get; set; }
