@@ -1,4 +1,4 @@
-@model ControlGastosApp.Web.ViewModels.Presupuestos.PresupuestoViewModel
+@model ControlGastosApp.Web.ViewModels.Presupuestos.PresupuestoCreateViewModel
 @{
     ViewData["Title"] = "Nuevo Presupuesto";
     Layout = "_Layout";
@@ -19,7 +19,7 @@
             
             <div class="form-group">
                 <label asp-for="TipoGastoId" class="control-label">Tipo de Gasto</label>
-                <select asp-for="TipoGastoId" class="form-control" asp-items="ViewBag.TiposGasto">
+                <select asp-for="TipoGastoId" class="form-control" asp-items="@(new SelectList(Model.TiposGasto, "Id", "Nombre"))">
                     <option value="">Seleccione un tipo de gasto</option>
                 </select>
                 <span asp-validation-for="TipoGastoId" class="text-danger"></span>

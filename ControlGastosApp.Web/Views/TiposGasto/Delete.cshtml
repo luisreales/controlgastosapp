@@ -1,3 +1,4 @@
+@model ControlGastosApp.Web.Models.TipoGasto
 @{
     ViewData["Title"] = "Eliminar Tipo de Gasto";
     Layout = "_Layout";
@@ -17,8 +18,12 @@
             <i class="fas fa-exclamation-triangle"></i>
             ¿Está seguro que desea eliminar el tipo de gasto "@Model.Nombre"?
         </div>
-        <form asp-action="Delete" method="post">
-            <input type="hidden" id="id" name="id" value="@Model.Id">
+        <div class="alert alert-danger">
+            <i class="fas fa-info-circle"></i>
+            <strong>Advertencia:</strong> Esta acción no se puede deshacer y eliminará todos los gastos asociados a este tipo.
+        </div>
+        <form asp-action="DeleteConfirmed" method="post">
+            <input type="hidden" name="id" value="@Model.Id">
             <div class="form-group">
                 <button type="submit" class="btn btn-danger">
                     <i class="fas fa-trash"></i> Eliminar

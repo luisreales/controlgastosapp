@@ -1,4 +1,4 @@
-@model ControlGastosApp.Web.ViewModels.Gastos.RegistroGastoListViewModel
+@model ControlGastosApp.Web.Models.RegistroGasto
 @{
     ViewData["Title"] = "Eliminar Gasto";
     Layout = "_Layout";
@@ -15,12 +15,12 @@
     <div class="card-body">
         <div class="alert alert-warning">
             <i class="fas fa-exclamation-triangle"></i>
-            ¿Está seguro que desea eliminar el gasto del <strong>@Model.FechaFormateada</strong> en <strong>@Model.Comercio</strong> por <strong>@Model.TotalFormateado</strong>?
+            ¿Está seguro que desea eliminar el gasto del <strong>@Model.Fecha.ToString("dd/MM/yyyy")</strong> en <strong>@Model.Comercio</strong> por <strong>@Model.Total.ToString("C", new System.Globalization.CultureInfo("es-CL"))</strong>?
         </div>
 
         <dl class="row">
             <dt class="col-sm-3">Fecha:</dt>
-            <dd class="col-sm-9">@Model.FechaFormateada</dd>
+            <dd class="col-sm-9">@Model.Fecha.ToString("dd/MM/yyyy")</dd>
 
             <dt class="col-sm-3">Comercio:</dt>
             <dd class="col-sm-9">@Model.Comercio</dd>
@@ -29,7 +29,7 @@
             <dd class="col-sm-9">@Model.TipoDocumento</dd>
 
             <dt class="col-sm-3">Total:</dt>
-            <dd class="col-sm-9">@Model.TotalFormateado</dd>
+            <dd class="col-sm-9">@Model.Total.ToString("C", new System.Globalization.CultureInfo("es-CL"))</dd>
         </dl>
 
         <h6 class="m-0 font-weight-bold text-primary mt-4">Detalles</h6>
@@ -45,8 +45,8 @@
                     @foreach (var detalle in Model.Detalles)
                     {
                         <tr>
-                            <td>@detalle.TipoGastoNombre</td>
-                            <td>@detalle.MontoFormateado</td>
+                            <td>@(detalle.TipoGasto?.Nombre ?? "Desconocido")</td>
+                            <td>@detalle.Monto.ToString("C", new System.Globalization.CultureInfo("es-CL"))</td>
                         </tr>
                     }
                 </tbody>

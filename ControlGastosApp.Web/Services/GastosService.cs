@@ -29,19 +29,26 @@ namespace ControlGastosApp.Web.Services
             // Validar presupuestos
             var presupuestosExcedidos = new List<PresupuestoExcedido>();
             var presupuestos = await _sqlDataService.GetPresupuestosAsync();
-            var mesActual = gasto.Fecha.ToString("MMMM yyyy", new CultureInfo("es-ES"));
+            // mesActual en formato "yyyy-MM"
+            var mesPresupuesto = gasto.Fecha.ToString("yyyy-MM");
+            
+            // Extraer año y mes para la consulta traducible
+            var year = gasto.Fecha.Year;
+            var month = gasto.Fecha.Month;
 
             foreach (var detalle in gasto.Detalles)
             {
+                // Buscar el presupuesto para el tipo de gasto y el mes (usando el formato guardado)
                 var presupuesto = presupuestos.FirstOrDefault(p => 
                     p.TipoGastoId == detalle.TipoGastoId && 
-                    p.Mes == mesActual);
+                    p.Mes == mesPresupuesto);
 
                 if (presupuesto != null)
                 {
                     // Calcular el total gastado hasta ahora (solo gastos existentes para ese tipo de gasto en el mes)
+                    // Usar comparación de año y mes para que sea traducible a SQL
                     var gastosExistentes = await _context.DetallesGastos
-                        .Where(d => d.TipoGastoId == detalle.TipoGastoId && d.RegistroGasto.Fecha.ToString("MMMM yyyy", new CultureInfo("es-ES")) == mesActual)
+                        .Where(d => d.TipoGastoId == detalle.TipoGastoId && d.RegistroGasto.Fecha.Year == year && d.RegistroGasto.Fecha.Month == month)
                         .SumAsync(d => d.Monto);
 
                     var totalGastado = gastosExistentes + detalle.Monto;
@@ -81,20 +88,27 @@ namespace ControlGastosApp.Web.Services
             // Validar presupuestos
             var presupuestosExcedidos = new List<PresupuestoExcedido>();
             var presupuestos = await _sqlDataService.GetPresupuestosAsync();
-            var mesActual = gasto.Fecha.ToString("MMMM yyyy", new CultureInfo("es-ES"));
+             // mesActual en formato "yyyy-MM"
+            var mesPresupuesto = gasto.Fecha.ToString("yyyy-MM");
+            
+            // Extraer año y mes para la consulta traducible
+            var year = gasto.Fecha.Year;
+            var month = gasto.Fecha.Month;
 
             foreach (var detalle in gasto.Detalles)
             {
-                var presupuesto = presupuestos.FirstOrDefault(p => 
+                // Buscar el presupuesto para el tipo de gasto y el mes (usando el formato guardado)
+                 var presupuesto = presupuestos.FirstOrDefault(p => 
                     p.TipoGastoId == detalle.TipoGastoId && 
-                    p.Mes == mesActual);
+                    p.Mes == mesPresupuesto);
 
                 if (presupuesto != null)
                 {
                     // Calcular el total gastado hasta ahora (excluyendo el gasto que se está actualizando)
+                    // Usar comparación de año y mes para que sea traducible a SQL
                     var gastosExistentes = await _context.DetallesGastos
                         .Where(d => d.TipoGastoId == detalle.TipoGastoId && 
-                                 d.RegistroGasto.Fecha.ToString("MMMM yyyy", new CultureInfo("es-ES")) == mesActual && 
+                                 d.RegistroGasto.Fecha.Year == year && d.RegistroGasto.Fecha.Month == month && 
                                  d.RegistroGastoId != gasto.Id) // Excluir el gasto actual
                         .SumAsync(d => d.Monto);
 
@@ -129,6 +143,7 @@ namespace ControlGastosApp.Web.Services
         {
             return await _context.RegistrosGastos
                                .Include(r => r.Detalles)
+                                   .ThenInclude(d => d.TipoGasto)
                                .Include(r => r.Fondo)
                                .FirstOrDefaultAsync(r => r.Id == id);
         }
@@ -149,6 +164,7 @@ namespace ControlGastosApp.Web.Services
              // This method is synchronous. Consider making calling code asynchronous or handle sync over async carefully.
              return _context.RegistrosGastos
                             .Include(r => r.Detalles)
+                                .ThenInclude(d => d.TipoGasto)
                             .Include(r => r.Fondo)
                             .FirstOrDefault(r => r.Id == id);
         }

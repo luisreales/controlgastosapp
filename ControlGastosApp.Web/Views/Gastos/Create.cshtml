@@ -13,18 +13,18 @@
         <h6 class="m-0 font-weight-bold text-primary">Crear Gasto</h6>
     </div>
     <div class="card-body">
-        <form asp-action="Create" method="post">
+        <form asp-action="Create" id="gastoForm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label asp-for="Fecha" class="control-label"></label>
-                        <input asp-for="Fecha" class="form-control" />
+                        <input asp-for="Fecha" class="form-control" type="date" />
                         <span asp-validation-for="Fecha" class="text-danger"></span>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
                         <label asp-for="FondoId" class="control-label">Fondo Monetario</label>
                         <select asp-for="FondoId" class="form-control" asp-items="ViewBag.Fondos">
@@ -33,29 +33,32 @@
                         <span asp-validation-for="FondoId" class="text-danger"></span>
                     </div>
                 </div>
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label asp-for="TipoDocumento" class="control-label">Tipo de Documento</label>
+                        <select asp-for="TipoDocumento" class="form-control" asp-items="ViewBag.TiposDocumento">
+                            <option value="">Seleccione un tipo de documento</option>
+                        </select>
+                        <span asp-validation-for="TipoDocumento" class="text-danger"></span>
+                    </div>
+                </div>
             </div>
 
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-8">
                     <div class="form-group">
                         <label asp-for="Comercio" class="control-label"></label>
                         <input asp-for="Comercio" class="form-control" />
                         <span asp-validation-for="Comercio" class="text-danger"></span>
                     </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="form-group">
-                        <label asp-for="TipoDocumento" class="control-label">Tipo de Documento</label>
-                        <input asp-for="TipoDocumento" class="form-control" />
-                        <span asp-validation-for="TipoDocumento" class="text-danger"></span>
+                        <label asp-for="Observaciones" class="control-label"></label>
+                        <input asp-for="Observaciones" class="form-control" />
+                        <span asp-validation-for="Observaciones" class="text-danger"></span>
                     </div>
                 </div>
-            </div>
-
-            <div class="form-group">
-                <label asp-for="Observaciones" class="control-label"></label>
-                <textarea asp-for="Observaciones" class="form-control" rows="3"></textarea>
-                <span asp-validation-for="Observaciones" class="text-danger"></span>
             </div>
 
             <h6 class="m-0 font-weight-bold text-primary mt-4">Detalles del Gasto</h6>
@@ -69,23 +72,28 @@
                         </tr>
                     </thead>
                     <tbody>
-                        @for (int i = 0; i < Model.Detalles.Count; i++)
+                        @for (var i = 0; i < Model.Detalles.Count; i++)
                         {
                             <tr>
                                 <td>
-                                    <select name="Detalles[@i].TipoGastoId" class="form-control" asp-items="ViewBag.TiposGasto">
-                                        <option value="">Seleccione un tipo</option>
+                                    <select asp-for="Detalles[i].TipoGastoId" class="form-control" asp-items="ViewBag.TiposGasto">
+                                        <option value="">Seleccione un tipo de gasto</option>
                                     </select>
                                     <span asp-validation-for="Detalles[i].TipoGastoId" class="text-danger"></span>
                                 </td>
                                 <td>
-                                    <input type="number" name="Detalles[@i].Monto" class="form-control" step="0.01" min="0" />
+                                    <input asp-for="Detalles[i].Monto" class="form-control" type="text" 
+                                           pattern="^\d{1,15}(\.\d{0,2})?$" 
+                                           oninput="validateMonto(this)"
+                                           maxlength="18"
+                                           data-val="true" 
+                                           data-val-required="El monto es requerido"
+                                           data-val-regex="El monto debe ser un número válido con máximo 15 dígitos"
+                                           data-val-regex-pattern="^\d{1,15}(\.\d{0,2})?$" />
                                     <span asp-validation-for="Detalles[i].Monto" class="text-danger"></span>
                                 </td>
                                 <td>
-                                    <button type="button" class="btn btn-danger btn-sm eliminar-detalle">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarDetalle(this)">Eliminar</button>
                                 </td>
                             </tr>
                         }
@@ -114,34 +122,73 @@
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     <script>
-        $(document).ready(function () {
-            var detalleIndex = @Model.Detalles.Count;
-
-            $("#agregar-detalle").click(function () {
-                var newRow = `
-                    <tr>
-                        <td>
-                            <select name="Detalles[${detalleIndex}].TipoGastoId" class="form-control" asp-items="ViewBag.TiposGasto">
-                                <option value="">Seleccione un tipo</option>
-                            </select>
-                        </td>
-                        <td>
-                            <input type="number" name="Detalles[${detalleIndex}].Monto" class="form-control" step="0.01" min="0" />
-                        </td>
-                        <td>
-                            <button type="button" class="btn btn-danger btn-sm eliminar-detalle">
-                                <i class="fas fa-trash"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
-                $("#detalles-table tbody").append(newRow);
-                detalleIndex++;
-            });
-
-            $(document).on("click", ".eliminar-detalle", function () {
-                $(this).closest("tr").remove();
+        $(document).ready(function() {
+            $("#agregar-detalle").click(function() {
+                agregarDetalle();
             });
         });
+
+        function agregarDetalle() {
+            var index = document.querySelectorAll('#detalles-table tbody tr').length;
+            var template = `
+                <tr>
+                    <td>
+                        <select name="Detalles[${index}].TipoGastoId" class="form-control" data-val="true" data-val-required="El tipo de gasto es requerido">
+                            <option value="">Seleccione un tipo de gasto</option>
+                            @foreach (var item in ViewBag.TiposGasto)
+                            {
+                                <option value="@item.Value">@item.Text</option>
+                            }
+                        </select>
+                        <span class="text-danger field-validation-valid" data-valmsg-for="Detalles[${index}].TipoGastoId" data-valmsg-replace="true"></span>
+                    </td>
+                    <td>
+                        <input name="Detalles[${index}].Monto" class="form-control" type="text" 
+                               pattern="^\d{1,15}(\.\d{0,2})?$" 
+                               oninput="validateMonto(this)"
+                               maxlength="18"
+                               data-val="true" 
+                               data-val-required="El monto es requerido"
+                               data-val-regex="El monto debe ser un número válido con máximo 15 dígitos"
+                               data-val-regex-pattern="^\d{1,15}(\.\d{0,2})?$" />
+                        <span class="text-danger field-validation-valid" data-valmsg-for="Detalles[${index}].Monto" data-valmsg-replace="true"></span>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-danger btn-sm" onclick="eliminarDetalle(this)">Eliminar</button>
+                    </td>
+                </tr>
+            `;
+            document.querySelector('#detalles-table tbody').insertAdjacentHTML('beforeend', template);
+        }
+
+        function eliminarDetalle(button) {
+            button.closest('tr').remove();
+        }
+
+        function validateMonto(input) {
+            let value = input.value;
+
+            // Allow only numbers and a single decimal point
+            value = value.replace(/[^0-9.]/g, '');
+            const decimalIndex = value.indexOf('.');
+            if (decimalIndex !== -1) {
+                const parts = value.split('.');
+                // Ensure only one decimal point
+                value = parts[0] + (parts[1] ? '.' + parts[1] : '');
+                // Truncate decimal part to 2 digits
+                if (parts[1] && parts[1].length > 2) {
+                    value = parts[0] + '.' + parts[1].substring(0, 2);
+                }
+            }
+            
+            // Check and truncate digits before decimal point
+            const currentValueBeforeDot = value.split('.')[0];
+            if (currentValueBeforeDot.length > 15) {
+                 // Truncate the part before the decimal
+                value = currentValueBeforeDot.substring(0, 15) + (decimalIndex !== -1 ? value.substring(decimalIndex) : '');
+            }
+
+            input.value = value;
+        }
     </script>
 } 

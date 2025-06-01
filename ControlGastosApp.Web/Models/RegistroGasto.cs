@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
+using ControlGastosApp.Web.Models.Enums;
 
 namespace ControlGastosApp.Web.Models
 {
@@ -16,6 +17,9 @@ namespace ControlGastosApp.Web.Models
         [JsonPropertyName("fondoId")]
         public int FondoId { get; set; }
 
+        [JsonPropertyName("fondo")]
+        public FondoMonetario? Fondo { get; set; }
+
         [Required(ErrorMessage = "El comercio es requerido")]
         [StringLength(100)]
         [JsonPropertyName("comercio")]
@@ -23,7 +27,7 @@ namespace ControlGastosApp.Web.Models
 
         [Required(ErrorMessage = "El tipo de documento es requerido")]
         [JsonPropertyName("tipoDocumento")]
-        public required string TipoDocumento { get; set; } = string.Empty; // "Comprobante", "Factura", "Otro"
+        public TipoDocumento TipoDocumento { get; set; }
 
         [StringLength(500)]
         [JsonPropertyName("observaciones")]
@@ -32,10 +36,9 @@ namespace ControlGastosApp.Web.Models
         [JsonPropertyName("detalles")]
         public List<DetalleGasto> Detalles { get; set; } = new List<DetalleGasto>();
 
-        public decimal Total => Detalles?.Sum(d => d.Monto) ?? 0;
+        [JsonPropertyName("total")]
+        public decimal Total => Detalles.Sum(d => d.Monto);
 
         public bool TieneDetalles => Detalles != null && Detalles.Any();
-
-        public FondoMonetario? Fondo { get; set; }
     }
 } 

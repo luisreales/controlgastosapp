@@ -6,6 +6,8 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Threading.Tasks;
+using System;
+using ControlGastosApp.Web.Models.Enums;
 
 namespace ControlGastosApp.Web.Controllers
 {
@@ -43,10 +45,18 @@ namespace ControlGastosApp.Web.Controllers
             var tiposGasto = await _sqlDataService.GetTiposGastoAsync();
             var fondos = await _sqlDataService.GetFondosAsync();
 
+            var viewModel = new RegistroGastoCreateViewModel
+            {
+                Fecha = DateTime.Now
+            };
+
             ViewBag.TiposGasto = new SelectList(tiposGasto, "Id", "Nombre");
             ViewBag.Fondos = new SelectList(fondos, "Id", "Nombre");
+            ViewBag.TiposDocumento = new SelectList(Enum.GetValues(typeof(TipoDocumento))
+                .Cast<TipoDocumento>()
+                .Select(t => new { Value = t.ToString(), Text = t.ToString() }), "Value", "Text");
 
-            return View(new RegistroGastoCreateViewModel());
+            return View(viewModel);
         }
 
         [HttpPost]
@@ -57,57 +67,87 @@ namespace ControlGastosApp.Web.Controllers
             {
                 var tiposGasto = await _sqlDataService.GetTiposGastoAsync();
                 var fondos = await _sqlDataService.GetFondosAsync();
-
+                
                 ViewBag.TiposGasto = new SelectList(tiposGasto, "Id", "Nombre");
                 ViewBag.Fondos = new SelectList(fondos, "Id", "Nombre");
+                ViewBag.TiposDocumento = new SelectList(Enum.GetValues(typeof(TipoDocumento))
+                    .Cast<TipoDocumento>()
+                    .Select(t => new { Value = t.ToString(), Text = t.ToString() }), "Value", "Text");
+
+                var detallesSelectList = new Dictionary<int, SelectList>();
+                for (int i = 0; i < model.Detalles.Count; i++)
+                {
+                    detallesSelectList[i] = new SelectList(tiposGasto, "Id", "Nombre", model.Detalles[i].TipoGastoId);
+                }
+                ViewBag.DetallesSelectList = detallesSelectList;
 
                 return View(model);
             }
 
-            var gasto = new RegistroGasto
+            try
             {
-                Fecha = model.Fecha,
-                FondoId = model.FondoId,
-                Comercio = model.Comercio,
-                TipoDocumento = model.TipoDocumento,
-                Observaciones = model.Observaciones,
-                Detalles = model.Detalles.Select(d => new DetalleGasto
+                var gasto = new RegistroGasto
                 {
-                    TipoGastoId = d.TipoGastoId,
-                    Monto = d.Monto
-                }).ToList()
-            };
-
-            var (success, message, presupuestosExcedidos) = await _gastosService.ValidarYGuardarGastoAsync(gasto);
-
-            if (!success)
-            {
-                if (presupuestosExcedidos != null)
-                {
-                    foreach (var excedido in presupuestosExcedidos)
+                    Fecha = model.Fecha,
+                    FondoId = model.FondoId,
+                    Comercio = model.Comercio,
+                    TipoDocumento = model.TipoDocumento,
+                    Observaciones = model.Observaciones,
+                    Detalles = model.Detalles.Select(d => new DetalleGasto
                     {
-                        ModelState.AddModelError("", 
-                            $"El presupuesto para {excedido.TipoGastoNombre} se ha excedido por {excedido.Excedente.ToString("C", new CultureInfo("es-CL"))}. " +
-                            $"Presupuesto: {excedido.MontoPresupuestado.ToString("C", new CultureInfo("es-CL"))}, " +
-                            $"Gastado: {excedido.MontoGastado.ToString("C", new CultureInfo("es-CL"))}");
-                    }
-                }
-                else
+                        TipoGastoId = d.TipoGastoId,
+                        Monto = d.Monto
+                    }).ToList()
+                };
+
+                var (success, message, presupuestosExcedidos) = await _gastosService.ValidarYGuardarGastoAsync(gasto);
+
+                if (!success)
                 {
-                    ModelState.AddModelError("", message);
+                    if (presupuestosExcedidos != null)
+                    {
+                        foreach (var excedido in presupuestosExcedidos)
+                        {
+                            ModelState.AddModelError("", 
+                                $"El presupuesto para {excedido.TipoGastoNombre} se ha excedido por {excedido.Excedente.ToString("C", new CultureInfo("es-CL"))}. " +
+                                $"Presupuesto: {excedido.MontoPresupuestado.ToString("C", new CultureInfo("es-CL"))}, " +
+                                $"Gastado: {excedido.MontoGastado.ToString("C", new CultureInfo("es-CL"))}");
+                        }
+                    }
+                    else
+                    {
+                        ModelState.AddModelError("", message);
+                    }
+
+                    var tiposGasto = await _sqlDataService.GetTiposGastoAsync();
+                    var fondos = await _sqlDataService.GetFondosAsync();
+
+                    ViewBag.TiposGasto = new SelectList(tiposGasto, "Id", "Nombre");
+                    ViewBag.Fondos = new SelectList(fondos, "Id", "Nombre");
+                    ViewBag.TiposDocumento = new SelectList(Enum.GetValues(typeof(TipoDocumento))
+                        .Cast<TipoDocumento>()
+                        .Select(t => new { Value = t.ToString(), Text = t.ToString() }), "Value", "Text");
+
+                    return View(model);
                 }
 
+                TempData["SuccessMessage"] = message;
+                return RedirectToAction(nameof(Index));
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Error al procesar la solicitud: " + ex.Message);
                 var tiposGasto = await _sqlDataService.GetTiposGastoAsync();
                 var fondos = await _sqlDataService.GetFondosAsync();
 
                 ViewBag.TiposGasto = new SelectList(tiposGasto, "Id", "Nombre");
                 ViewBag.Fondos = new SelectList(fondos, "Id", "Nombre");
+                ViewBag.TiposDocumento = new SelectList(Enum.GetValues(typeof(TipoDocumento))
+                    .Cast<TipoDocumento>()
+                    .Select(t => new { Value = t.ToString(), Text = t.ToString() }), "Value", "Text");
 
                 return View(model);
             }
-
-            TempData["SuccessMessage"] = message;
-            return RedirectToAction(nameof(Index));
         }
 
         public async Task<IActionResult> Edit(int id)
@@ -239,28 +279,11 @@ namespace ControlGastosApp.Web.Controllers
             {
                 return NotFound();
             }
-            var viewModel = new RegistroGastoListViewModel
-            {
-                Id = gasto.Id,
-                Fecha = gasto.Fecha,
-                FechaFormateada = gasto.Fecha.ToString("dd/MM/yyyy"),
-                Comercio = gasto.Comercio,
-                TipoDocumento = gasto.TipoDocumento,
-                Total = gasto.Total,
-                TotalFormateado = gasto.Total.ToString("C", new System.Globalization.CultureInfo("es-CL")),
-                FondoNombre = gasto.Fondo?.Nombre ?? "Desconocido",
-                Detalles = gasto.Detalles.Select(d => new DetalleGastoViewModel
-                {
-                    TipoGastoNombre = d.TipoGasto?.Nombre ?? "Desconocido",
-                    Monto = d.Monto,
-                    MontoFormateado = d.Monto.ToString("C", new System.Globalization.CultureInfo("es-CL"))
-                }).ToList()
-            };
-            return View(viewModel);
+
+            return View(gasto);
         }
 
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
+        [HttpPost]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             await _gastosService.DeleteGastoAsync(id);
@@ -268,9 +291,9 @@ namespace ControlGastosApp.Web.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult Detalle(int id)
+        public async Task<IActionResult> Detalle(int id)
         {
-            var gasto = _gastosService.GetGasto(id);
+            var gasto = await _gastosService.GetRegistroGastoAsync(id);
             if (gasto == null)
             {
                 return NotFound();

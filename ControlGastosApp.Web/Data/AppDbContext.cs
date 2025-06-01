@@ -20,6 +20,27 @@ namespace ControlGastosApp.Web.Data
         {
             base.OnModelCreating(modelBuilder);
 
+            // Configure decimal precision for monetary properties
+            modelBuilder.Entity<Deposito>()
+                .Property(d => d.Monto)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<DetalleGasto>()
+                .Property(d => d.Monto)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<FondoMonetario>()
+                .Property(f => f.Saldo)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Gasto>()
+                .Property(g => g.Monto)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Presupuesto>()
+                .Property(p => p.Monto)
+                .HasPrecision(18, 2);
+
             // Configure relationships if needed (Entity Framework Core often infers based on conventions)
             // For example:
             // modelBuilder.Entity<RegistroGasto>()

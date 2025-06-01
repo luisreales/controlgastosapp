@@ -1,3 +1,7 @@
+using System;
+using System.Globalization;
+using ControlGastosApp.Web.Models.Enums;
+
 namespace ControlGastosApp.Web.ViewModels.Gastos;
 
 public class RegistroGastoListViewModel
@@ -6,7 +10,7 @@ public class RegistroGastoListViewModel
     public DateTime Fecha { get; set; }
     public string FechaFormateada { get; set; } = string.Empty;
     public string Comercio { get; set; } = string.Empty;
-    public string TipoDocumento { get; set; } = string.Empty;
+    public TipoDocumento TipoDocumento { get; set; }
     public decimal Total { get; set; }
     public string TotalFormateado { get; set; } = string.Empty;
     public string FondoNombre { get; set; } = string.Empty;

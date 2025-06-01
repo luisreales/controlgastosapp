@@ -25,10 +25,11 @@ namespace ControlGastosApp.Web.Controllers
             var viewModel = presupuestos.Select(p => new PresupuestoListViewModel
             {
                 Id = p.Id,
-                TipoGastoNombre = tiposGasto.First(t => t.Id == p.TipoGastoId).Nombre,
+                TipoGastoNombre = p.TipoGasto?.Nombre ?? "Desconocido",
                 Mes = p.Mes,
                 Monto = p.Monto,
                 MontoGastado = gastos
+                    .Where(g => g.Fecha.ToString("yyyy-MM") == p.Mes)
                     .SelectMany(g => g.Detalles)
                     .Where(d => d.TipoGastoId == p.TipoGastoId)
                     .Sum(d => d.Monto)

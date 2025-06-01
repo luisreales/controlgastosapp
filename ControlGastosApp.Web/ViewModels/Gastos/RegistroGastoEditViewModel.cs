@@ -1,4 +1,7 @@
+using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using ControlGastosApp.Web.Models.Enums;
 
 namespace ControlGastosApp.Web.ViewModels.Gastos;
 
@@ -10,8 +13,8 @@ public class RegistroGastoEditViewModel
     [Display(Name = "Fecha")]
     public DateTime Fecha { get; set; }
 
-    [Required(ErrorMessage = "El fondo monetario es requerido")]
-    [Display(Name = "Fondo Monetario")]
+    [Required(ErrorMessage = "El fondo es requerido")]
+    [Display(Name = "Fondo")]
     public int FondoId { get; set; }
 
     [Required(ErrorMessage = "El comercio es requerido")]
@@ -20,7 +23,7 @@ public class RegistroGastoEditViewModel
 
     [Required(ErrorMessage = "El tipo de documento es requerido")]
     [Display(Name = "Tipo de Documento")]
-    public string TipoDocumento { get; set; } = string.Empty;
+    public TipoDocumento TipoDocumento { get; set; }
 
     [Display(Name = "Observaciones")]
     public string? Observaciones { get; set; }

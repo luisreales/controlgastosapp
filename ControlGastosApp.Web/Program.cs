@@ -22,7 +22,13 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Logging.AddConsole(); // Ensure console logging is enabled if not already
 
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(connectionString));
+    options.UseSqlServer(connectionString, sqlServerOptionsAction: sqlOptions =>
+    {
+        sqlOptions.EnableRetryOnFailure(
+            maxRetryCount: 5,
+            maxRetryDelay: TimeSpan.FromSeconds(30),
+            errorNumbersToAdd: null);
+    }));
 
 // Registrar servicios
 builder.Services.AddScoped<SqlDataService>();
