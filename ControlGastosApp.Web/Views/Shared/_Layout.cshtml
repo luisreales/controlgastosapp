@@ -25,156 +25,158 @@
 <body id="page-top">
     <!-- Page Wrapper -->
     <div id="wrapper">
-        <!-- Sidebar -->
-        <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
-            <!-- Sidebar - Brand -->
-            <a class="sidebar-brand d-flex align-items-center justify-content-center" href="@Url.Action("Index", "Home")">
-                <div class="sidebar-brand-icon rotate-n-15">
-                    <i class="fas fa-laugh-wink"></i>
-                </div>
-                <div class="sidebar-brand-text mx-3">Control Gastos</div>
-            </a>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider my-0">
-
-            <!-- Nav Item - Dashboard -->
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Home")">
-                    <i class="fas fa-fw fa-tachometer-alt"></i>
-                    <span>Dashboard</span>
-                </a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-
-            <!-- Heading -->
-            <div class="sidebar-heading">
-                Mantenimientos
-            </div>
-
-            <!-- Nav Item - Tipos de Gasto -->
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "TiposGasto")">
-                    <i class="fas fa-fw fa-tags"></i>
-                    <span>Tipos de Gasto</span>
-                </a>
-            </li>
-
-            <!-- Nav Item - Fondos -->
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Fondos")">
-                    <i class="fas fa-fw fa-wallet"></i>
-                    <span>Fondos</span>
-                </a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-
-            <!-- Heading -->
-            <div class="sidebar-heading">
-                Movimientos
-            </div>
-
-            <!-- Nav Item - Presupuestos -->
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Presupuestos")">
-                    <i class="fas fa-fw fa-chart-pie"></i>
-                    <span>Presupuestos</span>
-                </a>
-            </li>
-
-            <!-- Nav Item - Gastos -->
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Gastos")">
-                    <i class="fas fa-fw fa-money-bill-wave"></i>
-                    <span>Gastos</span>
-                </a>
-            </li>
-
-            <!-- Nav Item - Depósitos -->
-            <li class="nav-item">
-                <a class="nav-link" href="@Url.Action("Index", "Depositos")">
-                    <i class="fas fa-fw fa-hand-holding-usd"></i>
-                    <span>Depósitos</span>
-                </a>
-            </li>
-
-            <!-- Divider -->
-            <hr class="sidebar-divider">
-
-            <!-- Heading -->
-            <div class="sidebar-heading">
-                Reportes
-            </div>
-
-            <!-- Nav Item - Reportes -->
-            <li class="nav-item">
-                <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReportes"
-                    aria-expanded="true" aria-controls="collapseReportes">
-                    <i class="fas fa-fw fa-chart-bar"></i>
-                    <span>Reportes</span>
-                </a>
-                <div id="collapseReportes" class="collapse" aria-labelledby="headingReportes" data-parent="#accordionSidebar">
-                    <div class="bg-white py-2 collapse-inner rounded">
-                        <h6 class="collapse-header">Reportes Disponibles:</h6>
-                        <a class="collapse-item" href="@Url.Action("Movimientos", "Reportes")">Movimientos</a>
-                        <a class="collapse-item" href="@Url.Action("ComparativoPresupuestos", "Reportes")">Comparativo de Presupuestos</a>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <!-- Sidebar -->
+            <ul class="navbar-nav bg-gradient-primary sidebar sidebar-dark accordion" id="accordionSidebar">
+                <!-- Sidebar - Brand -->
+                <a class="sidebar-brand d-flex align-items-center justify-content-center" href="@Url.Action("Index", "Home")">
+                    <div class="sidebar-brand-icon rotate-n-15">
+                        <i class="fas fa-coins"></i>
                     </div>
+                    <div class="sidebar-brand-text mx-3">FinanSys</div>
+                </a>
+
+                <!-- Divider -->
+                <hr class="sidebar-divider my-0">
+
+                <!-- Nav Item - Dashboard -->
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Home")">
+                        <i class="fas fa-fw fa-home"></i>
+                        <span>Inicio</span>
+                    </a>
+                </li>
+
+                <!-- Divider -->
+                <hr class="sidebar-divider">
+
+                <!-- Heading -->
+                <div class="sidebar-heading">
+                    Mantenimientos
                 </div>
-            </li>
 
-            <!-- Divider -->
-            <hr class="sidebar-divider d-none d-md-block">
+                <!-- Nav Item - Tipos de Gasto -->
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "TiposGasto")">
+                        <i class="fas fa-fw fa-tags"></i>
+                        <span>Tipos de Gasto</span>
+                    </a>
+                </li>
 
-            <!-- Sidebar Toggler (Sidebar) -->
-            <div class="text-center d-none d-md-inline">
-                <button class="rounded-circle border-0" id="sidebarToggle"></button>
-            </div>
-        </ul>
-        <!-- End of Sidebar -->
+                <!-- Nav Item - Fondos -->
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Fondos")">
+                        <i class="fas fa-fw fa-wallet"></i>
+                        <span>Fondos</span>
+                    </a>
+                </li>
+
+                <!-- Divider -->
+                <hr class="sidebar-divider">
+
+                <!-- Heading -->
+                <div class="sidebar-heading">
+                    Movimientos
+                </div>
+
+                <!-- Nav Item - Presupuestos -->
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Presupuestos")">
+                        <i class="fas fa-fw fa-chart-pie"></i>
+                        <span>Presupuestos</span>
+                    </a>
+                </li>
+
+                <!-- Nav Item - Gastos -->
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Gastos")">
+                        <i class="fas fa-fw fa-money-bill-wave"></i>
+                        <span>Gastos</span>
+                    </a>
+                </li>
+
+                <!-- Nav Item - Depósitos -->
+                <li class="nav-item">
+                    <a class="nav-link" href="@Url.Action("Index", "Depositos")">
+                        <i class="fas fa-fw fa-hand-holding-usd"></i>
+                        <span>Depósitos</span>
+                    </a>
+                </li>
+
+                <!-- Divider -->
+                <hr class="sidebar-divider">
+
+                <!-- Heading -->
+                <div class="sidebar-heading">
+                    Reportes
+                </div>
+
+                <!-- Nav Item - Reportes -->
+                <li class="nav-item">
+                    <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseReportes"
+                        aria-expanded="true" aria-controls="collapseReportes">
+                        <i class="fas fa-fw fa-chart-bar"></i>
+                        <span>Reportes</span>
+                    </a>
+                    <div id="collapseReportes" class="collapse" aria-labelledby="headingReportes" data-parent="#accordionSidebar">
+                        <div class="bg-white py-2 collapse-inner rounded">
+                            <h6 class="collapse-header">Reportes Disponibles:</h6>
+                            <a class="collapse-item" href="@Url.Action("Movimientos", "Reportes")">Movimientos</a>
+                            <a class="collapse-item" href="@Url.Action("ComparativoPresupuestos", "Reportes")">Comparativo de Presupuestos</a>
+                        </div>
+                    </div>
+                </li>
+
+                <!-- Divider -->
+                <hr class="sidebar-divider d-none d-md-block">
+
+                <!-- Sidebar Toggler (Sidebar) -->
+                <div class="text-center d-none d-md-inline">
+                    <button class="rounded-circle border-0" id="sidebarToggle"></button>
+                </div>
+            </ul>
+            <!-- End of Sidebar -->
+        }
 
         <!-- Content Wrapper -->
         <div id="content-wrapper" class="d-flex flex-column">
             <!-- Main Content -->
             <div id="content">
-                <!-- Topbar -->
-                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
-                    <!-- Sidebar Toggle (Topbar) -->
-                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
-                        <i class="fa fa-bars"></i>
-                    </button>
+                @if (User.Identity.IsAuthenticated)
+                {
+                    <!-- Topbar -->
+                    <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                        <!-- Sidebar Toggle (Topbar) -->
+                        <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                            <i class="fa fa-bars"></i>
+                        </button>
 
-                    <!-- Topbar Navbar -->
-                    <ul class="navbar-nav ml-auto">
-                        <div class="topbar-divider d-none d-sm-block"></div>
+                        <!-- Topbar Navbar -->
+                        <ul class="navbar-nav ml-auto">
+                            <div class="topbar-divider d-none d-sm-block"></div>
 
-                        <!-- Nav Item - User Information -->
-                        <li class="nav-item dropdown no-arrow">
-                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
-                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">Usuario</span>
-                                <img class="img-profile rounded-circle" src="~/img/undraw_profile.svg">
-                            </a>
-                            <!-- Dropdown - User Information -->
-                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
-                                aria-labelledby="userDropdown">
-                                <a class="dropdown-item" href="#">
-                                    <i class="fas fa-user fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Perfil
+                            <!-- Nav Item - User Information -->
+                            <li class="nav-item dropdown no-arrow">
+                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <span class="mr-2 d-none d-lg-inline text-gray-600 small">@User.Identity.Name</span>
+                                    <img class="img-profile rounded-circle" src="~/img/undraw_profile.svg">
                                 </a>
-                                <div class="dropdown-divider"></div>
-                                <a class="dropdown-item" href="#" data-toggle="modal" data-target="#logoutModal">
-                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
-                                    Cerrar Sesión
-                                </a>
-                            </div>
-                        </li>
-                    </ul>
-                </nav>
-                <!-- End of Topbar -->
+                                <!-- Dropdown - User Information -->
+                                <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                    aria-labelledby="userDropdown">
+                                    <div class="dropdown-divider"></div>
+                                    <a class="dropdown-item" href="@Url.Action("Logout", "Account")">
+                                        <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                        Cerrar Sesión
+                                    </a>
+                                </div>
+                            </li>
+                        </ul>
+                    </nav>
+                    <!-- End of Topbar -->
+                }
 
                 <!-- Begin Page Content -->
                 <div class="container-fluid">
@@ -188,7 +190,7 @@
             <footer class="sticky-footer bg-white">
                 <div class="container my-auto">
                     <div class="copyright text-center my-auto">
-                        <span>Copyright &copy; Control de Gastos @DateTime.Now.Year</span>
+                        <span>Copyright &copy; Control de Gastos @DateTime.Now.Year . - Desarrollado por Luis Alfonso Reales Guerra</span>
                     </div>
                 </div>
             </footer>
@@ -202,26 +204,6 @@
     <a class="scroll-to-top rounded" href="#page-top">
         <i class="fas fa-angle-up"></i>
     </a>
-
-    <!-- Logout Modal-->
-    <div class="modal fade" id="logoutModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
-        aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">¿Listo para salir?</h5>
-                    <button class="close" type="button" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">×</span>
-                    </button>
-                </div>
-                <div class="modal-body">Seleccione "Cerrar Sesión" a continuación si está listo para finalizar su sesión actual.</div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" type="button" data-dismiss="modal">Cancelar</button>
-                    <a class="btn btn-primary" href="login.html">Cerrar Sesión</a>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Core JavaScript-->
     <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>

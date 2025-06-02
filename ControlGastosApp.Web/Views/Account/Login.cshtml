@@ -1,0 +1,46 @@
+@model ControlGastosApp.Web.Models.LoginViewModel
+
+@{
+    Layout = null; // Para centrar el login y evitar el layout principal
+}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Iniciar Sesión</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="~/css/login-custom.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="container">
+        <div class="title">
+            <h2>Iniciar Sesión</h2>
+        </div>
+        <form asp-action="Login" method="post" autocomplete="off">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="field">
+                <i class="fa fa-user"></i>
+                <input asp-for="Username" type="text" placeholder="Usuario" autocomplete="username" />
+            </div>
+            <span asp-validation-for="Username" class="text-danger" style="margin-bottom:10px;display:block"></span>
+            <div class="field">
+                <i class="fa fa-lock"></i>
+                <input asp-for="Password" type="password" placeholder="Contraseña" autocomplete="current-password" />
+            </div>
+            <span asp-validation-for="Password" class="text-danger" style="margin-bottom:10px;display:block"></span>
+            <div class="forgot">
+            </div>
+            <div class="login">
+                <button type="submit">Iniciar Sesión</button>
+            </div>
+            <div class="signup">
+            </div>
+        </form>
+    </div>
+    @section Scripts {
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    }
+</body>
+</html> 

@@ -1,8 +1,52 @@
 ﻿@{
-    ViewData["Title"] = "Home Page";
+    ViewData["Title"] = "Inicio";
+    Layout = "_Layout";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container mt-4">
+    <div class="jumbotron bg-light shadow-sm p-4">
+        <h1 class="display-4 text-primary"><i class="fas fa-coins"></i> Bienvenido a FinanSys</h1>
+        <p class="lead">FinanSys es tu herramienta para el control de gastos personales y familiares.</p>
+        <hr class="my-4">
+        <p>Desde aquí puedes gestionar tus presupuestos, gastos, fondos y visualizar reportes que te ayudarán a tomar mejores decisiones financieras.</p>
+    </div>
+
+    <div class="row mt-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-secondary"><i class="fas fa-cogs"></i> Mantenimientos</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-tags text-success"></i> <strong>Tipos de Gasto:</strong> Categoriza tus gastos con código automático.</li>
+                        <li><i class="fas fa-university text-success"></i> <strong>Fondos Monetarios:</strong> Administra tus cuentas bancarias y cajas menores.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-secondary"><i class="fas fa-exchange-alt"></i> Movimientos</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-balance-scale-left text-info"></i> <strong>Presupuestos:</strong> Establece cuánto gastar por mes y categoría.</li>
+                        <li><i class="fas fa-receipt text-info"></i> <strong>Gastos:</strong> Registra gastos detallados con validación contra el presupuesto.</li>
+                        <li><i class="fas fa-piggy-bank text-info"></i> <strong>Depósitos:</strong> Aumenta el saldo de tus fondos.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title text-secondary"><i class="fas fa-chart-line"></i> Reportes</h5>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-search-dollar text-warning"></i> <strong>Consulta de Movimientos:</strong> Filtra por fechas tus depósitos y egresos.</li>
+                        <li><i class="fas fa-chart-bar text-warning"></i> <strong>Gráfico Comparativo:</strong> Visualiza tu presupuesto vs ejecución.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
