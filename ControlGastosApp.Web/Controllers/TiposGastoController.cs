@@ -26,7 +26,9 @@ namespace ControlGastosApp.Web.Controllers
 
         public async Task<IActionResult> Create()
         {
+            var prefijo = await _sqlDataService.GetPrefijoCodigoTipoGastoAsync();
             var codigo = await _sqlDataService.GenerarSiguienteCodigoTipoGastoAsync();
+            ViewBag.PrefijoCodigoTipoGasto = prefijo;
             var model = new TipoGastoViewModel
             {
                 Codigo = codigo,
@@ -61,6 +63,9 @@ namespace ControlGastosApp.Web.Controllers
             {
                 return NotFound();
             }
+
+            var prefijo = await _sqlDataService.GetPrefijoCodigoTipoGastoAsync();
+            ViewBag.PrefijoCodigoTipoGasto = prefijo;
 
             var model = new TipoGastoViewModel
             {

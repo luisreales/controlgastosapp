@@ -233,8 +233,44 @@ namespace ControlGastosApp.Web.Controllers
                 })
                 .ToList();
 
-            _logger.LogInformation("Datos del comparativo: {Comparativo}", 
-                JsonSerializer.Serialize(model.Comparativo));
+            // =============================
+            // Llenar la lista de movimientos
+            // =============================
+            var depositos = await _sqlDataService.GetDepositosAsync();
+            var fondos = await _sqlDataService.GetFondosAsync();
+            var movimientos = new List<MovimientoViewModel>();
+
+            // Depósitos
+            foreach (var deposito in depositos.Where(d => d.Fecha.Date >= model.FechaInicio.Date && d.Fecha.Date <= model.FechaFin.Date))
+            {
+                var fondo = fondos.FirstOrDefault(f => f.Id == deposito.FondoMonetarioId);
+                movimientos.Add(new MovimientoViewModel
+                {
+                    Fecha = deposito.Fecha,
+                    Tipo = "Depósito",
+                    Descripcion = deposito.Descripcion,
+                    FondoNombre = fondo?.Nombre ?? string.Empty,
+                    Monto = deposito.Monto
+                });
+            }
+
+            // Gastos
+            foreach (var gasto in gastosData.Where(g => g.Fecha.Date >= model.FechaInicio.Date && g.Fecha.Date <= model.FechaFin.Date))
+            {
+                var fondo = fondos.FirstOrDefault(f => f.Id == gasto.FondoMonetarioId);
+                decimal monto = gasto.Detalles.Sum(d => d.Monto);
+                movimientos.Add(new MovimientoViewModel
+                {
+                    Fecha = gasto.Fecha,
+                    Tipo = "Gasto",
+                    Descripcion = gasto.Observaciones,
+                    FondoNombre = fondo?.Nombre ?? string.Empty,
+                    Monto = monto
+                });
+            }
+
+            // Ordenar por fecha descendente
+            model.Movimientos = movimientos.OrderByDescending(m => m.Fecha).ToList();
 
             model.TiposGasto = (await _sqlDataService.GetTiposGastoAsync())
                 .Select(t => new TipoGastoViewModel { Id = t.Id, Nombre = t.Nombre! })

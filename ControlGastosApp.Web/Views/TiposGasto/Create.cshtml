@@ -2,6 +2,7 @@
 @{
     ViewData["Title"] = "Crear Tipo de Gasto";
     Layout = "_Layout";
+    var prefijo = ViewBag.PrefijoCodigoTipoGasto as string ?? "A";
 }
 
 <!-- Page Heading -->
@@ -26,7 +27,7 @@
             <div class="form-group">
                 <label asp-for="Codigo" class="control-label">Código de Gasto</label>
                 <input asp-for="Codigo" class="form-control" readonly />
-                <small class="form-text text-muted">El código se genera automáticamente siguiendo el formato 'A + número' (ej: A10, A11, etc.)</small>
+                <small class="form-text text-muted">El código se genera automáticamente siguiendo el formato '<b>@prefijo</b> + número' (ej: @(prefijo)10, @(prefijo)11, etc.)</small>
                 <span asp-validation-for="Codigo" class="text-danger"></span>
             </div>
             

@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Threading.Tasks;
 using System.Linq;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Configuration;
 
 namespace ControlGastosApp.Web.Services
 {
@@ -11,11 +12,13 @@ namespace ControlGastosApp.Web.Services
     {
         private readonly AppDbContext _context;
         private readonly ILogger<SqlDataService> _logger;
+        private readonly IConfiguration _configuration;
 
-        public SqlDataService(AppDbContext context, ILogger<SqlDataService> logger)
+        public SqlDataService(AppDbContext context, ILogger<SqlDataService> logger, IConfiguration configuration)
         {
             _context = context;
             _logger = logger;
+            _configuration = configuration;
         }
 
         public async Task<List<TipoGasto>> GetTiposGastoAsync()
@@ -238,36 +241,45 @@ namespace ControlGastosApp.Web.Services
         /// <returns>El siguiente código disponible</returns>
         public async Task<string> GenerarSiguienteCodigoTipoGastoAsync()
         {
-            // Obtener todos los códigos existentes
+            // Obtener el prefijo usando el método dedicado
+            var prefijo = await GetPrefijoCodigoTipoGastoAsync();
+
+            // Obtener todos los códigos existentes con ese prefijo
             var codigosExistentes = await _context.TiposGasto
-                .Where(t => t.Codigo != null && t.Codigo.StartsWith("A"))
+                .Where(t => t.Codigo != null && t.Codigo.StartsWith(prefijo))
                 .Select(t => t.Codigo)
                 .ToListAsync();
 
             if (!codigosExistentes.Any())
             {
-                return "A1"; // Comenzar desde A1
+                return $"{prefijo}1"; // Comenzar desde el prefijo+1
             }
 
             // Extraer los números de los códigos existentes
             var numeros = codigosExistentes
-                .Select(c => int.TryParse(c.Substring(1), out int num) ? num : 0)
+                .Select(c => int.TryParse(c.Substring(prefijo.Length), out int num) ? num : 0)
                 .ToList();
 
             // Obtener el número más alto y sumar 1
             var siguienteNumero = numeros.Max() + 1;
 
             // Generar el nuevo código
-            var nuevoCodigo = $"A{siguienteNumero}";
+            var nuevoCodigo = $"{prefijo}{siguienteNumero}";
 
             // Verificar que el código no exista (por si acaso)
             while (codigosExistentes.Contains(nuevoCodigo))
             {
                 siguienteNumero++;
-                nuevoCodigo = $"A{siguienteNumero}";
+                nuevoCodigo = $"{prefijo}{siguienteNumero}";
             }
 
             return nuevoCodigo;
+        }
+
+        public Task<string> GetPrefijoCodigoTipoGastoAsync()
+        {
+            var prefijo = _configuration.GetValue<string>("PrefijoCodigoTipoGasto") ?? "A";
+            return Task.FromResult(prefijo);
         }
 
         // Métodos para interactuar con la base de datos irán aquí
