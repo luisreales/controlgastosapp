@@ -1,4 +1,7 @@
 using System.ComponentModel.DataAnnotations;
+using ControlGastosApp.Web.Models.Reportes;
+using System;
+using System.Collections.Generic;
 
 namespace ControlGastosApp.Web.ViewModels.Reportes
 {
@@ -14,6 +17,6 @@ namespace ControlGastosApp.Web.ViewModels.Reportes
         [DataType(DataType.Date)]
         public DateTime FechaFin { get; set; }
 
-        public List<MovimientoViewModel> Movimientos { get; set; } = new();
+        public List<MovimientosViewModel> Movimientos { get; set; } = new();
     }
 } 

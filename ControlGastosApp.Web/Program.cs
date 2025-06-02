@@ -65,11 +65,13 @@ app.UseExceptionHandler(errorApp =>
         if (exception is SqlException)
         {
             context.Response.Redirect("/Home/DatabaseError");
+            await Task.CompletedTask;
             return;
         }
 
         // Otros errores
         context.Response.Redirect("/Home/Error");
+        await Task.CompletedTask;
     });
 });
 

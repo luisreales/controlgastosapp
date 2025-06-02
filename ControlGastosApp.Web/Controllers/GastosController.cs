@@ -47,14 +47,19 @@ namespace ControlGastosApp.Web.Controllers
 
             var viewModel = new RegistroGastoCreateViewModel
             {
-                Fecha = DateTime.Now
+                Fecha = DateTime.Now,
+                TipoDocumento = null
             };
 
             ViewBag.TiposGasto = new SelectList(tiposGasto, "Id", "Nombre");
             ViewBag.Fondos = new SelectList(fondos, "Id", "Nombre");
-            ViewBag.TiposDocumento = new SelectList(Enum.GetValues(typeof(TipoDocumento))
-                .Cast<TipoDocumento>()
-                .Select(t => new { Value = t.ToString(), Text = t.ToString() }), "Value", "Text");
+            ViewBag.TiposDocumento = new SelectList(
+                new List<SelectListItem>
+                {
+                    new SelectListItem { Text = "Comprobante", Value = "Comprobante" },
+                    new SelectListItem { Text = "Factura", Value = "Factura" },
+                    new SelectListItem { Text = "Otro", Value = "Otro" }
+                }, "Value", "Text");
 
             return View(viewModel);
         }
@@ -91,7 +96,7 @@ namespace ControlGastosApp.Web.Controllers
                     Fecha = model.Fecha,
                     FondoMonetarioId = model.FondoMonetarioId,
                     Comercio = model.Comercio,
-                    TipoDocumento = model.TipoDocumento,
+                    TipoDocumento = model.TipoDocumento ?? throw new InvalidOperationException("El tipo de documento es requerido"),
                     Observaciones = model.Observaciones,
                     Detalles = model.Detalles.Select(d => new DetalleGasto
                     {

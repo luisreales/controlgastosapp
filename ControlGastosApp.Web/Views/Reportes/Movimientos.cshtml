@@ -1,106 +1,80 @@
 @model ControlGastosApp.Web.ViewModels.Reportes.MovimientosReporteViewModel
-
 @{
-    ViewData["Title"] = "Reporte de Movimientos";
-    Layout = "_Layout";
+    ViewData["Title"] = "Movimientos";
+    var azulSuave = "#e3f0fa";
+    var grisSuave = "#f8f9fa";
 }
 
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Reporte de Movimientos</h1>
-</div>
+<div class="container-fluid">
+    <h1 class="h3 mb-4 text-gray-800">Movimientos</h1>
 
-<div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Filtros</h6>
-    </div>
-    <div class="card-body">
-        <form asp-action="Movimientos" method="post">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label asp-for="FechaInicio" class="control-label"></label>
-                        <input asp-for="FechaInicio" class="form-control" type="date" />
-                        <span asp-validation-for="FechaInicio" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label asp-for="FechaFin" class="control-label"></label>
-                        <input asp-for="FechaFin" class="form-control" type="date" />
-                        <span asp-validation-for="FechaFin" class="text-danger"></span>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="form-group">
-                        <label class="control-label">&nbsp;</label>
-                        <div>
-                            <button type="submit" class="btn btn-primary">
-                                <i class="fas fa-search fa-sm"></i> Buscar
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
-
-@if (Model.Movimientos != null && Model.Movimientos.Any())
-{
     <div class="card shadow mb-4">
         <div class="card-header py-3">
-            <h6 class="m-0 font-weight-bold text-primary">Resultados</h6>
+            <h6 class="m-0 font-weight-bold text-primary">Buscar Movimientos por Fecha</h6>
         </div>
         <div class="card-body">
-            <div class="table-responsive">
-                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                    <thead>
-                        <tr>
-                            <th>Fecha</th>
-                            <th>Tipo</th>
-                            <th>Descripción</th>
-                            <th>Fondo</th>
-                            <th class="text-right">Monto</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        @foreach (var item in Model.Movimientos)
-                        {
+            <form asp-action="Movimientos" method="post" class="form-inline mb-4">
+                <div class="form-group mr-2">
+                    <label asp-for="FechaInicio" class="mr-2">Desde</label>
+                    <input asp-for="FechaInicio" class="form-control" type="date" />
+                </div>
+                <div class="form-group mr-2">
+                    <label asp-for="FechaFin" class="mr-2">Hasta</label>
+                    <input asp-for="FechaFin" class="form-control" type="date" />
+                </div>
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </form>
+
+            @if (Model.Movimientos != null && Model.Movimientos.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-bordered shadow-sm rounded" style="background: #fff;">
+                        <thead style="background: #222; color: #fff;">
                             <tr>
-                                <td>@item.FechaFormateada</td>
-                                <td>@item.Tipo</td>
-                                <td>@item.Descripcion</td>
-                                <td>@item.FondoNombre</td>
-                                <td class="text-right @(item.Monto < 0 ? "text-danger" : "text-success")">
-                                    @item.MontoFormateado
-                                </td>
+                                <th>Fecha</th>
+                                <th>Movimiento</th>
+                                <th class="text-center">Entradas</th>
+                                <th class="text-center">Salidas</th>
+                                <th class="text-center">Saldo</th>
                             </tr>
-                        }
-                    </tbody>
-                    <tfoot>
-                        <tr class="font-weight-bold">
-                            <td colspan="4">Total</td>
-                            <td class="text-right @(Model.Movimientos.Sum(x => x.Monto) < 0 ? "text-danger" : "text-success")">
-                                @Model.Movimientos.Sum(x => x.Monto).ToString("C")
-                            </td>
-                        </tr>
-                    </tfoot>
-                </table>
-            </div>
+                        </thead>
+                        <tbody>
+                            @for (int i = 0; i < Model.Movimientos.Count; i++)
+                            {
+                                var movimiento = Model.Movimientos[i];
+                                var rowColor = i % 2 == 0 ? azulSuave : grisSuave;
+                                <tr style="background: @rowColor;">
+                                    <td>@movimiento.Fecha.ToString("dd/MM/yyyy")</td>
+                                    <td>@movimiento.Descripcion</td>
+                                    <td class="text-right">
+                                        @if (movimiento.Entradas.HasValue && movimiento.Entradas.Value > 0)
+                                        {
+                                            <span class="text-success font-weight-bold">
+                                                <i class="fas fa-arrow-up"></i>
+                                                @movimiento.Entradas.Value.ToString("C")
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="text-right">
+                                        @if (movimiento.Salidas.HasValue && movimiento.Salidas.Value > 0)
+                                        {
+                                            <span class="text-danger font-weight-bold">
+                                                <i class="fas fa-arrow-down"></i>
+                                                @movimiento.Salidas.Value.ToString("C")
+                                            </span>
+                                        }
+                                    </td>
+                                    <td class="text-right font-weight-bold">@movimiento.Saldo.ToString("C")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-info">No hay movimientos para el rango de fechas seleccionado.</div>
+            }
         </div>
     </div>
-}
-
-@section Scripts {
-    <script>
-        $(document).ready(function () {
-            $('#dataTable').DataTable({
-                "order": [[0, "desc"]],
-                "language": {
-                    "url": "//cdn.datatables.net/plug-ins/1.10.24/i18n/Spanish.json"
-                }
-            });
-        });
-    </script>
-} 
+</div> 

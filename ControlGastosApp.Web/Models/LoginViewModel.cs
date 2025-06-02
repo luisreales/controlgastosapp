@@ -6,11 +6,11 @@ namespace ControlGastosApp.Web.Models
     {
         [Required(ErrorMessage = "El nombre de usuario es requerido")]
         [Display(Name = "Usuario")]
-        public string Username { get; set; }
+        public required string Username { get; set; }
 
         [Required(ErrorMessage = "La contraseña es requerida")]
         [DataType(DataType.Password)]
         [Display(Name = "Contraseña")]
-        public string Password { get; set; }
+        public required string Password { get; set; }
     }
 } 

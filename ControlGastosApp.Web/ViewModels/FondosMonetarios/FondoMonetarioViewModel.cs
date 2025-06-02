@@ -11,6 +11,8 @@ namespace ControlGastosApp.Web.ViewModels.FondosMonetarios
         [Display(Name = "Nombre")]
         public required string Nombre { get; set; }
 
+        [Required(ErrorMessage = "El saldo es requerido")]
+        [Range(0.01, double.MaxValue, ErrorMessage = "El saldo debe ser un número mayor a 0")]
         [Display(Name = "Saldo")]
         [DataType(DataType.Currency)]
         public decimal Saldo { get; set; }

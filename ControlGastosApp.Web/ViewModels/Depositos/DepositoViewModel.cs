@@ -18,7 +18,7 @@ namespace ControlGastosApp.Web.ViewModels.Depositos
 
         [Required(ErrorMessage = "El monto es requerido")]
         [Range(0.01, double.MaxValue, ErrorMessage = "El monto debe ser mayor a 0")]
-        [Display(Name = "Monto")]
+        [RegularExpression(@"^\d+(\.\d{1,2})?$", ErrorMessage = "El monto debe ser un número válido")]
         [DataType(DataType.Currency)]
         public decimal Monto { get; set; }
     }

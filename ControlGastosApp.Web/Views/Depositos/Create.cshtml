@@ -63,4 +63,13 @@
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        if (window.jQuery && window.jQuery.validator) {
+            window.jQuery.extend(window.jQuery.validator.messages, {
+                number: "El campo debe ser un número válido.",
+                required: "Este campo es requerido.",
+                invalid: "El valor ingresado no es válido."
+            });
+        }
+    </script>
 } 

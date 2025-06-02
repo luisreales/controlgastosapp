@@ -60,7 +60,7 @@ namespace ControlGastosApp.Web.Controllers
             {
                 Fecha = model.Fecha,
                 FondoMonetarioId = model.FondoMonetarioId,
-                Monto = model.Monto,
+                Monto = model.Monto ?? throw new InvalidOperationException("El monto es requerido"),
                 Descripcion = model.Descripcion
             };
 
@@ -113,7 +113,7 @@ namespace ControlGastosApp.Web.Controllers
                 Id = model.Id,
                 Fecha = model.Fecha,
                 FondoMonetarioId = model.FondoMonetarioId,
-                Monto = model.Monto,
+                Monto = model.Monto ?? throw new InvalidOperationException("El monto es requerido"),
                 Descripcion = model.Descripcion
             };
 

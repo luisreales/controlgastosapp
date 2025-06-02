@@ -6,6 +6,8 @@ using ControlGastosApp.Web.ViewModels.Reportes;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using System.Text.Json;
+using System.Threading.Tasks;
+using System.Collections.Generic;
 
 namespace ControlGastosApp.Web.Controllers
 {
@@ -110,7 +112,8 @@ namespace ControlGastosApp.Web.Controllers
             var viewModel = new MovimientosReporteViewModel
             {
                 FechaInicio = DateTime.Today.AddMonths(-1),
-                FechaFin = DateTime.Today
+                FechaFin = DateTime.Today,
+                Movimientos = new List<MovimientosViewModel>()
             };
             return View(viewModel);
         }
@@ -120,64 +123,53 @@ namespace ControlGastosApp.Web.Controllers
         {
             if (!ModelState.IsValid)
             {
-                _logger.LogWarning("Modelo inválido en Movimientos: {Errors}", 
-                    string.Join(", ", ModelState.Values
-                        .SelectMany(v => v.Errors.Where(e => e.ErrorMessage != null))
-                        .Select(e => e.ErrorMessage!)));
                 return View(model);
             }
 
-            try
+            var depositos = await _sqlDataService.GetDepositosAsync();
+            var gastos = await _sqlDataService.GetGastosAsync();
+
+            var movimientos = new List<MovimientosViewModel>();
+
+            // Agregar depósitos filtrados
+            foreach (var deposito in depositos.Where(d => d.Fecha.Date >= model.FechaInicio.Date && d.Fecha.Date <= model.FechaFin.Date))
             {
-                _logger.LogInformation("Buscando movimientos entre {FechaInicio} y {FechaFin}", 
-                    model.FechaInicio, model.FechaFin);
-
-                var gastos = await _sqlDataService.GetGastosAsync();
-                var gastosMovimientos = gastos
-                    .Where(g => g.Fecha.Date >= model.FechaInicio.Date && g.Fecha.Date <= model.FechaFin.Date)
-                    .Select(g => new MovimientoViewModel
-                    {
-                        Fecha = g.Fecha,
-                        FechaFormateada = g.Fecha.ToString("dd/MM/yyyy"),
-                        Tipo = "Gasto",
-                        Descripcion = g.Observaciones,
-                        Monto = -g.Detalles.Sum(d => d.Monto),
-                        FondoNombre = g.Fondo?.Nombre ?? "Desconocido"
-                    })
-                    .ToList();
-
-                _logger.LogInformation("Encontrados {Count} gastos", gastos.Count);
-
-                var depositos = await _sqlDataService.GetDepositosAsync();
-                var depositosMovimientos = depositos
-                    .Where(d => d.Fecha.Date >= model.FechaInicio.Date && d.Fecha.Date <= model.FechaFin.Date)
-                    .Select(d => new MovimientoViewModel
-                    {
-                        Fecha = d.Fecha,
-                        FechaFormateada = d.Fecha.ToString("dd/MM/yyyy"),
-                        Tipo = "Depósito",
-                        Descripcion = d.Descripcion ?? "Depósito",
-                        Monto = d.Monto,
-                        FondoNombre = d.FondoMonetario?.Nombre ?? "Desconocido"
-                    })
-                    .ToList();
-
-                _logger.LogInformation("Encontrados {Count} depósitos", depositos.Count);
-
-                model.Movimientos = gastosMovimientos.Concat(depositosMovimientos)
-                    .OrderByDescending(m => m.Fecha)
-                    .ToList();
-
-                _logger.LogInformation("Total de movimientos: {Count}", model.Movimientos.Count);
-
-                return View(model);
+                movimientos.Add(new MovimientosViewModel
+                {
+                    Fecha = deposito.Fecha,
+                    Descripcion = $"Depósito - {deposito.Descripcion}",
+                    Entradas = deposito.Monto,
+                    Salidas = null,
+                    TipoMovimiento = "Depósito"
+                });
             }
-            catch (Exception ex)
+
+            // Agregar gastos filtrados
+            foreach (var gasto in gastos.Where(g => g.Fecha.Date >= model.FechaInicio.Date && g.Fecha.Date <= model.FechaFin.Date))
             {
-                _logger.LogError(ex, "Error al buscar movimientos");
-                ModelState.AddModelError("", "Ocurrió un error al buscar los movimientos. Por favor, intente nuevamente.");
-                return View(model);
+                movimientos.Add(new MovimientosViewModel
+                {
+                    Fecha = gasto.Fecha,
+                    Descripcion = $"Gasto - {gasto.Observaciones}",
+                    Entradas = null,
+                    Salidas = gasto.Detalles.Sum(d => d.Monto),
+                    TipoMovimiento = "Gasto"
+                });
             }
+
+            // Ordenar por fecha
+            movimientos = movimientos.OrderBy(m => m.Fecha).ToList();
+
+            // Calcular saldos acumulados
+            decimal saldoAcumulado = 0;
+            foreach (var movimiento in movimientos)
+            {
+                saldoAcumulado += (movimiento.Entradas ?? 0) - (movimiento.Salidas ?? 0);
+                movimiento.Saldo = saldoAcumulado;
+            }
+
+            model.Movimientos = movimientos;
+            return View(model);
         }
 
         public async Task<IActionResult> ComparativoPresupuestos()
@@ -246,36 +238,6 @@ namespace ControlGastosApp.Web.Controllers
 
             model.TiposGasto = (await _sqlDataService.GetTiposGastoAsync())
                 .Select(t => new TipoGastoViewModel { Id = t.Id, Nombre = t.Nombre! })
-                .ToList();
-
-            // Add movimientos data
-            var gastosParaMovimientos = await _sqlDataService.GetGastosAsync();
-            var gastosMovimientos = gastosParaMovimientos
-                .Where(g => g.Fecha.Date >= model.FechaInicio.Date && g.Fecha.Date <= model.FechaFin.Date)
-                .Select(g => new MovimientoViewModel
-                {
-                    Fecha = g.Fecha,
-                    Tipo = "Gasto",
-                    Descripcion = g.Observaciones,
-                    Monto = -g.Detalles.Sum(d => d.Monto),
-                    FondoNombre = g.Fondo?.Nombre ?? "Desconocido"
-                })
-                .ToList();
-
-            var depositosMovimientos = (await _sqlDataService.GetDepositosAsync())
-                .Where(d => d.Fecha.Date >= model.FechaInicio.Date && d.Fecha.Date <= model.FechaFin.Date)
-                .Select(d => new MovimientoViewModel
-                {
-                    Fecha = d.Fecha,
-                    Tipo = "Depósito",
-                    Descripcion = d.Descripcion ?? "Depósito",
-                    Monto = d.Monto,
-                    FondoNombre = d.FondoMonetario?.Nombre ?? "Desconocido"
-                })
-                .ToList();
-
-            model.Movimientos = gastosMovimientos.Concat(depositosMovimientos)
-                .OrderByDescending(m => m.Fecha)
                 .ToList();
 
             return View(model);

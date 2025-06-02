@@ -25,7 +25,7 @@ public class RegistroGastoCreateViewModel
     [Required(ErrorMessage = "El tipo de documento es requerido")]
     [Display(Name = "Tipo de Documento")]
     [EnumDataType(typeof(TipoDocumento))]
-    public TipoDocumento TipoDocumento { get; set; }
+    public TipoDocumento? TipoDocumento { get; set; }
 
     [Display(Name = "Observaciones")]
     public string? Observaciones { get; set; }

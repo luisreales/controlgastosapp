@@ -108,18 +108,37 @@ namespace ControlGastosApp.Web.Controllers
         [HttpPost]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            _logger.LogInformation("Attempting to confirm deletion for TipoGasto with ID: {Id}", id);
-            var result = await _sqlDataService.DeleteTipoGastoAsync(id);
-            
-            if (!result.success)
+            _logger.LogInformation("Intentando confirmar la eliminación del TipoGasto con ID: {Id}", id);
+            try
             {
-                _logger.LogWarning("Deletion of TipoGasto with ID {Id} failed: {Message}", id, result.message);
-                TempData["ErrorMessage"] = result.message;
+                var result = await _sqlDataService.DeleteTipoGastoAsync(id);
+                if (!result.success)
+                {
+                    _logger.LogWarning("La eliminación del TipoGasto con ID {Id} falló: {Message}", id, result.message);
+                    TempData["ErrorMessage"] = string.IsNullOrWhiteSpace(result.message) ? "No se pudo eliminar el tipo de gasto." : result.message;
+                }
+                else
+                {
+                    _logger.LogInformation("La eliminación del TipoGasto con ID {Id} fue exitosa.", id);
+                    TempData["SuccessMessage"] = "Tipo de gasto eliminado correctamente.";
+                }
             }
-            else
+            catch (Microsoft.EntityFrameworkCore.DbUpdateException ex)
             {
-                 _logger.LogInformation("Deletion of TipoGasto with ID {Id} succeeded.", id);
-                 TempData["SuccessMessage"] = result.message;
+                if (ex.InnerException != null && ex.InnerException.Message.Contains("FOREIGN KEY"))
+                {
+                    TempData["ErrorMessage"] = "No se puede eliminar el tipo de gasto porque tiene registros asociados.";
+                }
+                else
+                {
+                    TempData["ErrorMessage"] = "Ocurrió un error al intentar eliminar el tipo de gasto.";
+                }
+                _logger.LogError(ex, "Error al eliminar TipoGasto con ID {Id}", id);
+            }
+            catch (Exception ex)
+            {
+                TempData["ErrorMessage"] = "Ocurrió un error inesperado.";
+                _logger.LogError(ex, "Error inesperado al eliminar TipoGasto con ID {Id}", id);
             }
             return RedirectToAction(nameof(Index));
         }
