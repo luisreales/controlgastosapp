@@ -33,8 +33,8 @@
                             <tr>
                                 <th>Fecha</th>
                                 <th>Movimiento</th>
-                                <th class="text-center">Entradas</th>
-                                <th class="text-center">Salidas</th>
+                                <th class="text-center">Entradas <i class="fas fa-arrow-up text-success"></i></th>
+                                <th class="text-center">Salidas <i class="fas fa-arrow-down text-danger"></i></th>
                                 <th class="text-center">Saldo</th>
                             </tr>
                         </thead>
@@ -50,8 +50,7 @@
                                         @if (movimiento.Entradas.HasValue && movimiento.Entradas.Value > 0)
                                         {
                                             <span class="text-success font-weight-bold">
-                                                <i class="fas fa-arrow-up"></i>
-                                                @movimiento.Entradas.Value.ToString("C")
+                                                @movimiento.Entradas.Value.ToString("N2")
                                             </span>
                                         }
                                     </td>
@@ -59,8 +58,7 @@
                                         @if (movimiento.Salidas.HasValue && movimiento.Salidas.Value > 0)
                                         {
                                             <span class="text-danger font-weight-bold">
-                                                <i class="fas fa-arrow-down"></i>
-                                                @movimiento.Salidas.Value.ToString("C")
+                                                @movimiento.Salidas.Value.ToString("N2")
                                             </span>
                                         }
                                     </td>

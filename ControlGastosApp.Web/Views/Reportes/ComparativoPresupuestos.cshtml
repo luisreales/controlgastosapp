@@ -58,8 +58,8 @@
                     <thead>
                         <tr>
                             <th>Tipo de Gasto</th>
-                            <th class="text-right">Presupuestado</th>
                             <th class="text-right">Ejecutado</th>
+                            <th class="text-right">Presupuestado</th>
                             <th class="text-right">Diferencia</th>
                         </tr>
                     </thead>
@@ -68,9 +68,9 @@
                         {
                             <tr>
                                 <td>@item.TipoGastoNombre</td>
-                                <td class="text-right">@item.PresupuestadoFormateado</td>
-                                <td class="text-right">@item.EjecutadoFormateado</td>
-                                <td class="text-right">@item.DiferenciaFormateada</td>
+                                <td class="text-right">@item.Ejecutado.ToString("N2")</td>
+                                <td class="text-right">@item.Presupuestado.ToString("N2")</td>
+                                <td class="text-right">@item.Diferencia.ToString("N2")</td>
                             </tr>
                         }
                     </tbody>
