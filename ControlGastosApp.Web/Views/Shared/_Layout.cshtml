@@ -19,10 +19,43 @@
     <!-- DevExtreme CSS -->
     <link rel="stylesheet" href="https://cdn3.devexpress.com/jslib/latest/css/dx.light.css" />
     
+    <style>
+        #loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+        }
+        .spinner-container {
+            text-align: center;
+        }
+        .spinner-text {
+            margin-top: 10px;
+            color: #4e73df;
+            font-weight: bold;
+        }
+    </style>
+    
     @await RenderSectionAsync("Styles", required: false)
 </head>
 
 <body id="page-top">
+    <!-- Loading Overlay -->
+    <div id="loading-overlay">
+        <div class="spinner-container">
+            <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                <span class="sr-only">Cargando...</span>
+            </div>
+            <div class="spinner-text">Cargando datos...</div>
+        </div>
+    </div>
+
     <!-- Page Wrapper -->
     <div id="wrapper">
         @if (User?.Identity?.IsAuthenticated == true)
@@ -225,8 +258,33 @@
             });
         }
 
-        // Cerrar cualquier menú lateral después de hacer clic en un enlace
-        $(document).ready(function() {
+        // Control robusto del spinner de carga
+        $(function() {
+            // Mostrar el overlay al inicio
+            $('#loading-overlay').show();
+
+            // Ocultar el overlay cuando todo esté listo
+            $(window).on('load', function() {
+                $('#loading-overlay').fadeOut(400);
+            });
+
+            // Fallback: ocultar el overlay después de 5 segundos por si window.load no se dispara
+            setTimeout(function() {
+                $('#loading-overlay').fadeOut(400);
+            }, 5000);
+
+            // Mostrar spinner en cada navegación
+            $(document).on('click', 'a', function() {
+                if (!$(this).hasClass('dropdown-toggle')) {
+                    $('#loading-overlay').show();
+                }
+            });
+
+            // Mostrar spinner en envíos de formularios
+            $(document).on('submit', 'form', function() {
+                $('#loading-overlay').show();
+            });
+
             // Capturar clics en todos los enlaces de menús laterales
             $('.sidebar a, .navbar-nav a').on('click', function() {
                 if (window.innerWidth < 768) {
