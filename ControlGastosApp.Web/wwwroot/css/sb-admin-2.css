@@ -11290,11 +11290,19 @@ body.sidebar-toggled footer.sticky-footer {
   }
 }
 /* Forzar visibilidad y posición del topbar en todos los dispositivos */
+
+/* Forzar visibilidad y posición del topbar en todos los dispositivos */
 .topbar {
   display: flex !important;
-  position: sticky !important;
+  position: fixed !important;
+  left: 0 !important;
+  right: 0 !important;
   top: 0 !important;
-  z-index: 9999 !important;
+  z-index: 1051 !important;
   background: #fff !important;
   width: 100% !important;
+  min-height: 56px !important;
+}
+#content {
+  margin-top: 60px !important;
 }
