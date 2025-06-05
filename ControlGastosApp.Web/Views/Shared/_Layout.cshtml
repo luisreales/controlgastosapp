@@ -40,6 +40,14 @@
             color: #4e73df;
             font-weight: bold;
         }
+        /* Asegura que el topbar sea visible y sticky en mobile */
+        @@media (max-width: 767.98px) {
+            .topbar {
+                z-index: 1050 !important;
+                position: sticky;
+                top: 0;
+            }
+        }
     </style>
     
     @await RenderSectionAsync("Styles", required: false)
