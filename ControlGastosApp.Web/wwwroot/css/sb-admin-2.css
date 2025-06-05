@@ -11279,3 +11279,13 @@ footer.sticky-footer .copyright {
 body.sidebar-toggled footer.sticky-footer {
   width: 100%;
 }
+
+@media (max-width: 767.98px) {
+  .topbar {
+      z-index: 1050 !important;
+      position: sticky;
+      top: 0;
+      background: #fff;
+      display: flex !important;
+  }
+}
