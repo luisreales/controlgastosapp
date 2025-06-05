@@ -11289,3 +11289,12 @@ body.sidebar-toggled footer.sticky-footer {
       display: flex !important;
   }
 }
+/* Forzar visibilidad y posición del topbar en todos los dispositivos */
+.topbar {
+  display: flex !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 9999 !important;
+  background: #fff !important;
+  width: 100% !important;
+}
