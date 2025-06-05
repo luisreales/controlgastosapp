@@ -17,14 +17,14 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="row">
-                <div class="col-md-4">
+                <div class="col-12 col-md-4">
                     <div class="form-group">
                         <label asp-for="Fecha" class="control-label"></label>
                         <input asp-for="Fecha" class="form-control" type="date" />
                         <span asp-validation-for="Fecha" class="text-danger"></span>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-4">
                     <div class="form-group">
                         <label asp-for="FondoMonetarioId" class="control-label">Fondo Monetario</label>
                         <select asp-for="FondoMonetarioId" class="form-control" asp-items="ViewBag.Fondos">
@@ -33,7 +33,7 @@
                         <span asp-validation-for="FondoMonetarioId" class="text-danger"></span>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-4">
                     <div class="form-group">
                         <label asp-for="TipoDocumento" class="control-label">Tipo de Documento</label>
                         <select asp-for="TipoDocumento" class="form-control" asp-items="ViewBag.TiposDocumento">
@@ -45,14 +45,14 @@
             </div>
 
             <div class="row">
-                <div class="col-md-8">
+                <div class="col-12 col-md-8">
                     <div class="form-group">
                         <label asp-for="Comercio" class="control-label"></label>
                         <input asp-for="Comercio" class="form-control" />
                         <span asp-validation-for="Comercio" class="text-danger"></span>
                     </div>
                 </div>
-                <div class="col-md-4">
+                <div class="col-12 col-md-4">
                     <div class="form-group">
                         <label asp-for="Observaciones" class="control-label"></label>
                         <input asp-for="Observaciones" class="form-control" />

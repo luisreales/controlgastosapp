@@ -4,73 +4,77 @@
     Layout = "_Layout";
 }
 
-@* Display Error Message from TempData *@
-@if (TempData["ErrorMessage"] != null)
-{
-    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-        @TempData["ErrorMessage"]
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
+<div class="container-fluid px-2 px-md-4">
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-3 mb-md-4">
+        <h1 class="h3 mb-0 text-gray-800">Tipos de Gasto</h1>
+        <div class="mb-2 mb-md-0">
+            <a href="@Url.Action("Create")" class="btn btn-primary btn-block w-100 w-md-auto">
+                <i class="fas fa-plus"></i> Nuevo Tipo de Gasto
+            </a>
+        </div>
     </div>
-}
 
-@* Display Success Message from TempData *@
-@if (TempData["SuccessMessage"] != null)
-{
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @TempData["SuccessMessage"]
-        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-        </button>
-    </div>
-}
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["ErrorMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
 
-<!-- Page Heading -->
-<div class="d-sm-flex align-items-center justify-content-between mb-4">
-    <h1 class="h3 mb-0 text-gray-800">Tipos de Gasto</h1>
-    <a href="@Url.Action("Create")" class="d-none d-sm-inline-block btn btn-primary shadow-sm">
-        <i class="fas fa-plus fa-sm text-white-50"></i> Nuevo Tipo de Gasto
-    </a>
-</div>
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["SuccessMessage"]
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    }
 
-<!-- DataTales Example -->
-<div class="card shadow mb-4">
-    <div class="card-header py-3">
-        <h6 class="m-0 font-weight-bold text-primary">Lista de Tipos de Gasto</h6>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                <thead>
-                    <tr>
-                        <th style="display: none;">ID</th>
-                        <th>Código</th>
-                        <th>Nombre</th>
-                        <th>Descripción</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
+    <!-- DataTales Example -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-2 py-md-3">
+            <h6 class="m-0 font-weight-bold text-primary">Lista de Tipos de Gasto</h6>
+        </div>
+        <div class="card-body p-2 p-md-3">
+            <div class="table-responsive">
+                <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                    <thead>
                         <tr>
-                            <td style="display: none;">@item.Id</td>
-                            <td>@item.Codigo</td>
-                            <td>@item.Nombre</td>
-                            <td>@item.Descripcion</td>
-                            <td>
-                                <a href="@Url.Action("Edit", new { id = item.Id })" class="btn btn-primary btn-sm">
-                                    <i class="fas fa-edit"></i>
-                                </a>
-                                <a href="@Url.Action("Delete", new { id = item.Id })" class="btn btn-danger btn-sm">
-                                    <i class="fas fa-trash"></i>
-                                </a>
-                            </td>
+                            <th style="display: none;">ID</th>
+                            <th>Código</th>
+                            <th>Nombre</th>
+                            <th class="d-none d-md-table-cell">Descripción</th>
+                            <th>Acciones</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td style="display: none;">@item.Id</td>
+                                <td>@item.Codigo</td>
+                                <td>@item.Nombre</td>
+                                <td class="d-none d-md-table-cell">@item.Descripcion</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="@Url.Action("Edit", new { id = item.Id })" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="@Url.Action("Delete", new { id = item.Id })" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -86,4 +90,27 @@
             });
         });
     </script>
-} 
+}
+
+<style>
+    @@media (max-width: 767.98px) {
+        .table-responsive {
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+        }
+        .btn-group {
+            display: flex;
+            gap: 2px;
+        }
+        .btn-group .btn {
+            padding: 0.25rem 0.5rem;
+        }
+        .card-body {
+            padding: 0.5rem !important;
+        }
+        .table td, .table th {
+            padding: 0.5rem;
+            vertical-align: middle;
+        }
+    }
+</style> 

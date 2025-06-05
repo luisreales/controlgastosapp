@@ -224,6 +224,22 @@
                 invalid: "El valor ingresado no es válido."
             });
         }
+
+        // Cerrar cualquier menú lateral después de hacer clic en un enlace
+        $(document).ready(function() {
+            // Capturar clics en todos los enlaces de menús laterales
+            $('.sidebar a, .navbar-nav a').on('click', function() {
+                if (window.innerWidth < 768) {
+                    // Cerrar el sidebar principal
+                    $('body').removeClass('sidebar-toggled');
+                    $('.sidebar').removeClass('toggled');
+                    
+                    // Cerrar cualquier otro menú lateral
+                    $('.navbar-collapse').removeClass('show');
+                    $('.collapse').removeClass('show');
+                }
+            });
+        });
     </script>
 </body>
 </html>

@@ -3,62 +3,66 @@
     ViewData["Title"] = "Gastos";
     Layout = "_Layout";
 }
-<div class="card shadow mb-4">
-    <div class="card-header py-3 d-flex justify-content-between align-items-center">
-        <h6 class="m-0 font-weight-bold text-primary">Gastos</h6>
-        <a href="@Url.Action("Create")" class="btn btn-primary">
-            <i class="fas fa-plus"></i> Nuevo Gasto
-        </a>
-    </div>
-    <div class="card-body">
-        @if (TempData["SuccessMessage"] != null)
-        {
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                @TempData["SuccessMessage"]
-                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
+<div class="container-fluid px-2 px-md-4">
+    <div class="card shadow mb-4">
+        <div class="card-header py-2 py-md-3 d-flex justify-content-between align-items-center">
+            <h6 class="m-0 font-weight-bold text-primary">Gastos</h6>
+            <div class="mb-2 mb-md-0">
+                <a href="@Url.Action("Create")" class="btn btn-primary btn-block w-100 w-md-auto">
+                    <i class="fas fa-plus"></i> Nuevo Gasto
+                </a>
             </div>
-        }
+        </div>
+        <div class="card-body p-2 p-md-3">
+            @if (TempData["SuccessMessage"] != null)
+            {
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    @TempData["SuccessMessage"]
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            }
 
-        <div class="table-responsive">
-            <table class="table table-bordered" id="gastos-table" width="100%" cellspacing="0">
-                <thead>
-                    <tr>
-                        <th>Fecha</th>
-                        <th>Comercio</th>
-                        <th>Tipo de Documento</th>
-                        <th>Fondo Monetario</th>
-                        <th>Total</th>
-                        <th>Acciones</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach (var item in Model)
-                    {
+            <div class="table-responsive">
+                <table class="table table-bordered" id="gastos-table" width="100%" cellspacing="0">
+                    <thead>
                         <tr>
-                            <td>@item.FechaFormateada</td>
-                            <td>@item.Comercio</td>
-                            <td>@item.TipoDocumento</td>
-                            <td>@item.FondoNombre</td>
-                            <td>@item.TotalFormateado</td>
-                            <td>
-                                <div class="btn-group" role="group">
-                                    <a href="@Url.Action("Detalle", new { id = item.Id })" class="btn btn-info btn-sm">
-                                        <i class="fas fa-eye"></i>
-                                    </a>
-                                    <a href="@Url.Action("Edit", new { id = item.Id })" class="btn btn-primary btn-sm">
-                                        <i class="fas fa-edit"></i>
-                                    </a>
-                                    <a href="@Url.Action("Delete", new { id = item.Id })" class="btn btn-danger btn-sm">
-                                        <i class="fas fa-trash"></i>
-                                    </a>
-                                </div>
-                            </td>
+                            <th>Fecha</th>
+                            <th>Comercio</th>
+                            <th class="d-none d-md-table-cell">Tipo de Documento</th>
+                            <th class="d-none d-md-table-cell">Fondo Monetario</th>
+                            <th class="d-none d-md-table-cell">Total</th>
+                            <th>Acciones</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.FechaFormateada</td>
+                                <td>@item.Comercio</td>
+                                <td class="d-none d-md-table-cell">@item.TipoDocumento</td>
+                                <td class="d-none d-md-table-cell">@item.FondoNombre</td>
+                                <td class="d-none d-md-table-cell">@item.TotalFormateado</td>
+                                <td>
+                                    <div class="btn-group" role="group">
+                                        <a href="@Url.Action("Detalle", new { id = item.Id })" class="btn btn-info btn-sm">
+                                            <i class="fas fa-eye"></i>
+                                        </a>
+                                        <a href="@Url.Action("Edit", new { id = item.Id })" class="btn btn-primary btn-sm">
+                                            <i class="fas fa-edit"></i>
+                                        </a>
+                                        <a href="@Url.Action("Delete", new { id = item.Id })" class="btn btn-danger btn-sm">
+                                            <i class="fas fa-trash"></i>
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
@@ -74,4 +78,27 @@
             });
         });
     </script>
-} 
+}
+
+<style>
+    @@media (max-width: 767.98px) {
+        .table-responsive {
+            padding-left: 2px !important;
+            padding-right: 2px !important;
+        }
+        .btn-group {
+            display: flex;
+            gap: 2px;
+        }
+        .btn-group .btn {
+            padding: 0.25rem 0.5rem;
+        }
+        .card-body {
+            padding: 0.5rem !important;
+        }
+        .table td, .table th {
+            padding: 0.5rem;
+            vertical-align: middle;
+        }
+    }
+</style> 
