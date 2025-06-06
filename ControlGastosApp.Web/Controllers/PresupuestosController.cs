@@ -4,9 +4,11 @@ using ControlGastosApp.Web.Models;
 using ControlGastosApp.Web.ViewModels.Presupuestos;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ControlGastosApp.Web.Controllers
 {
+    [Authorize]
     public class PresupuestosController : Controller
     {
         private readonly SqlDataService _sqlDataService;

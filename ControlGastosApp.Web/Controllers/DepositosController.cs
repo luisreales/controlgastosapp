@@ -4,9 +4,11 @@ using ControlGastosApp.Web.Models;
 using ControlGastosApp.Web.ViewModels.Depositos;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ControlGastosApp.Web.Controllers
 {
+    [Authorize]
     public class DepositosController : Controller
     {
         private readonly SqlDataService _sqlDataService;

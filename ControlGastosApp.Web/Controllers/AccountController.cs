@@ -3,16 +3,26 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using ControlGastosApp.Web.Models;
+using Microsoft.Extensions.Logging;
 
 namespace ControlGastosApp.Web.Controllers
 {
     public class AccountController : Controller
     {
-        public IActionResult Login()
+        private readonly ILogger<AccountController> _logger;
+
+        public AccountController(ILogger<AccountController> logger)
         {
+            _logger = logger;
+        }
+
+        public async Task<IActionResult> Login()
+        {
+            _logger.LogInformation("Usuario autenticado: {IsAuthenticated}, Nombre: {Name}", User.Identity.IsAuthenticated, User.Identity.Name);
             if (User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Index", "Home");
+                await HttpContext.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+                return RedirectToAction("Login");
             }
             return View();
         }

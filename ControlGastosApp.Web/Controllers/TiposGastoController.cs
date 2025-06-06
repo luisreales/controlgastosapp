@@ -4,9 +4,11 @@ using ControlGastosApp.Web.Models;
 using ControlGastosApp.Web.ViewModels.TiposGasto;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ControlGastosApp.Web.Controllers
 {
+    [Authorize]
     public class TiposGastoController : Controller
     {
         private readonly SqlDataService _sqlDataService;

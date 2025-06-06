@@ -3,9 +3,11 @@ using ControlGastosApp.Web.Services;
 using ControlGastosApp.Web.Models;
 using ControlGastosApp.Web.ViewModels.FondosMonetarios;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ControlGastosApp.Web.Controllers
 {
+    [Authorize]
     public class FondosController : Controller
     {
         private readonly SqlDataService _sqlDataService;

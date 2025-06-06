@@ -8,9 +8,11 @@ using System.Globalization;
 using System.Threading.Tasks;
 using System;
 using ControlGastosApp.Web.Models.Enums;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ControlGastosApp.Web.Controllers
 {
+    [Authorize]
     public class GastosController : Controller
     {
         private readonly GastosService _gastosService;
